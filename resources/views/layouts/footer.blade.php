@@ -2,10 +2,10 @@
     <div class="container mx-auto px-4 lg:px-8 flex flex-col md:flex-row justify-between items-center">
         <div class="flex items-center gap-3 text-center md:text-left md:order-1">
             <a href="{{ Auth::check() ? route('dashboard') : route('login') }}" class="hidden md:inline-block">
-                <img src="{{ asset('img/logo.png') }}" alt="Logo AFC" class="w-20">
+                <img src="{{ asset('img/logo.png') }}" alt="Logo Méndez García & Asociados" class="w-20">
             </a>
             <div>
-                <h5 class="text-lg font-semibold text-teal-500 dark:text-teal-300">AFC Asesoría Fiscal Contable</h5>
+                <h5 class="text-lg font-semibold text-teal-500 dark:text-teal-300">Méndez García & Asociados</h5>
                 @auth
                     <p class="text-sm">Sistema de Gestión de Clientes y Trámites Fiscales</p>
                 @endauth

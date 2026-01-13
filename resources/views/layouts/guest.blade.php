@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Oficina Contable AFC</title>
+    <title>Oficina Contable "Méndez García & Asociados"</title>
 
     <!-- Icon -->
     <link rel="icon" href="{{ asset('img/icono.png') }}" type="image/png">
@@ -98,7 +98,7 @@
                     <div class="w-full">
                         <!-- Logotipo -->
                         <div class="mb-3 text-center">
-                            <img src="/img/logo.png" alt="Logo AFC" class="w-40 mx-auto mb-3">
+                            <img src="/img/logo.png" alt="Logo Méndez García & Asociados" class="w-40 mx-auto mb-3">
                         </div>
 
                         <!-- Formulario de inicio de sesión -->

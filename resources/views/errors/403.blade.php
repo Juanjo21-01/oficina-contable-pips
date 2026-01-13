@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Oficina Contable AFC</title>
+    <title>Oficina Contable "Méndez García & Asociados"</title>
 
     <!-- Icon -->
     <link rel="icon" href="{{ asset('img/icono.png') }}" type="image/png">

@@ -96,10 +96,11 @@
                 <!-- Logo de la Empresa -->
                 <img src="{{ asset('img/logo.png') }}" alt="Logo de la Empresa" class="mx-auto h-16 mb-2">
                 <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">Recibo de Trámite</h2>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Empresa Asesoría Fiscal Contable</p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Dirección: 10 calle 7-37, Local #3, Zona 1, San Marcos
+                <p class="text-sm text-gray-600 dark:text-gray-400">Oficina Contable "Méndez García & Asociados"</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Dirección: 7° avenida 3-40, Zona 2, San Pedro
+                    Sacatepéquez San Marcos
                 </p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Teléfono: (502) 5164-4661</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Teléfonos: 5861-2987 y 5611-6232</p>
                 <p class="text-sm text-gray-600 dark:text-gray-400">Fecha: {{ date('d/m/Y') }}</p>
                 <p class="text-sm text-gray-600 dark:text-gray-400">Recibo No: #{{ $tramite->id }}</p>
             </div>

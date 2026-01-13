@@ -20,7 +20,7 @@ new class extends Component {
     <div class="py-4 text-zinc-500 dark:text-zinc-400">
         <!-- Logo -->
         <a href="{{ route('dashboard') }}">
-            <img src="/img/logo.png" alt="Logo AFC" class="w-20 mx-auto">
+            <img src="/img/logo.png" alt="Logo Méndez García & Asociados" class="w-20 mx-auto">
         </a>
 
         <ul class="mt-6">

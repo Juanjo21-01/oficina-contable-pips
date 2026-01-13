@@ -175,9 +175,9 @@
                 </td>
                 <td style="text-align: center; width: 80%;">
                     <h2>Reporte de Trámites</h2>
-                    <p>Asesoría Fiscal Contable</p>
-                    <p>10 calle 7-37, Local #3, Zona 1, San Marcos</p>
-                    <p>Teléfono: 5164-4661</p>
+                    <p>Oficina Contable "Méndez García & Asociados"</p>
+                    <p>10 7° avenida 3-40, Zona 2, San Pedro Sacatepéquez San Marcos</p>
+                    <p>Teléfonos: 5861-2987 y 5611-6232</p>
                     <p>Fecha: {{ date('d/m/Y') }}</p>
                 </td>
             </tr>
