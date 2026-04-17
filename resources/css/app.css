@@ -2,6 +2,130 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Component layer: reusable design-system classes ─── */
+@layer components {
+
+    /* Cards */
+    .card {
+        @apply bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-card;
+    }
+    .card-hover {
+        @apply hover:shadow-card-hover hover:scale-[1.01] transition-all duration-200;
+    }
+
+    /* Buttons */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-button border border-transparent transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+    .btn-primary {
+        @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500;
+    }
+    .btn-secondary {
+        @apply btn bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-brand-500;
+    }
+    .btn-danger {
+        @apply btn bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500;
+    }
+    .btn-ghost {
+        @apply btn bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700;
+    }
+
+    /* Status badges */
+    .badge {
+        @apply inline-flex items-center px-3 py-1 text-xs font-semibold rounded-badge;
+    }
+    .badge-active {
+        @apply badge bg-brand-100 dark:bg-brand-800 text-brand-700 dark:text-brand-100;
+    }
+    .badge-inactive {
+        @apply badge bg-rose-100 dark:bg-rose-800 text-rose-700 dark:text-rose-100;
+    }
+    .badge-pending {
+        @apply badge bg-amber-100 dark:bg-amber-800 text-amber-700 dark:text-amber-100;
+    }
+    .badge-info {
+        @apply badge bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-100;
+    }
+
+    /* Action icon buttons */
+    .btn-action {
+        @apply p-1.5 rounded-lg border border-transparent transition-colors duration-150 focus:outline-none;
+    }
+    .btn-action-view {
+        @apply btn-action text-purple-600 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20;
+    }
+    .btn-action-edit {
+        @apply btn-action text-orange-600 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20;
+    }
+    .btn-action-delete {
+        @apply btn-action text-rose-600 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20;
+    }
+
+    /* Form inputs */
+    .form-input-base {
+        @apply block w-full rounded-button border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm text-sm focus:border-brand-500 focus:ring-brand-500 dark:focus:border-brand-400;
+    }
+    .form-select-base {
+        @apply form-input-base pr-8;
+    }
+
+    /* Table */
+    .table-container {
+        @apply w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 shadow-card;
+    }
+    .table-header {
+        @apply px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-800 border-b-2 border-gray-200 dark:border-gray-700 text-center;
+    }
+    .table-cell {
+        @apply px-4 py-3 text-sm text-gray-700 dark:text-gray-300;
+    }
+    .table-row {
+        @apply hover:bg-brand-50/40 dark:hover:bg-brand-900/10 transition-colors duration-100;
+    }
+
+    /* Toolbar */
+    .toolbar {
+        @apply flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4;
+    }
+
+    /* Search input with icon */
+    .search-wrap {
+        @apply relative;
+    }
+    .search-wrap svg {
+        @apply absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none;
+    }
+    .search-wrap input {
+        @apply form-input-base pl-9 py-2;
+    }
+
+    /* Section heading */
+    .section-title {
+        @apply text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4;
+    }
+
+    /* Avatar initials */
+    .avatar {
+        @apply inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white shrink-0;
+    }
+
+    /* Empty state */
+    .empty-state {
+        @apply flex flex-col items-center justify-center py-16 text-center text-gray-400 dark:text-gray-500;
+    }
+    .empty-state svg {
+        @apply w-14 h-14 mb-4 opacity-40;
+    }
+    .empty-state p {
+        @apply text-sm;
+    }
+
+    /* Skeleton loading pulse */
+    .skeleton {
+        @apply bg-gray-200 dark:bg-gray-700 animate-pulse rounded;
+    }
+}
+
 @layer utilities {
     ::-webkit-scrollbar {
         width: 10px;
