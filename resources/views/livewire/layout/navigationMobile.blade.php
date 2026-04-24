@@ -11,6 +11,8 @@ new class extends Component {
     }
 }; ?>
 
+<div>
+
 {{-- Backdrop with blur --}}
 <div x-show="isSideMenuOpen"
     x-transition:enter="transition ease-out duration-200"
@@ -207,3 +209,5 @@ new class extends Component {
 
     </div>
 </aside>
+
+</div>
