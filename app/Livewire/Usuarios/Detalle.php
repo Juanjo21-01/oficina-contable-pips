@@ -18,7 +18,6 @@ class Detalle extends Component
     // Constructor
     public function mount($id)
     {
-        // Solo los administradores pueden acceder
         if (Auth::user()->role->nombre != 'Administrador') {
             abort(403);
         }
@@ -30,48 +29,34 @@ class Detalle extends Component
     // Editar
     public function editar($usuarioId)
     {
-        // Solo los administradores pueden editar
         if (Auth::user()->role->nombre !== 'Administrador') {
-            return toastr()->addError('¡No tienes permiso para editar usuarios!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: '¡No tienes permiso para editar usuarios!');
+            return;
         }
-        
+
         $this->dispatch('editarUsuario', $usuarioId);
     }
 
     // Cambiar estado
     public function cambiarEstado($usuarioId)
     {
-        // Buscar usuario
         $usuario = User::find($usuarioId);
 
-        // Verificar si el usuario tiene el rol de administrador
         if ($usuario->role->nombre == 'Administrador') {
-            toastr()->addError('¡No puedes cambiar el estado de un administrador!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: '¡No puedes cambiar el estado de un administrador!');
             return;
         }
 
-        // Cambiar estado
         $usuario->estado = !$usuario->estado;
         $usuario->save();
 
-        // Mostrar mensaje
-        toastr()->addSuccess('¡Estado actualizado!', [
-            'positionClass' => 'toast-bottom-right',
-            'closeButton' => true,
-        ]);
+        $this->dispatch('toast', type: 'success', message: '¡Estado actualizado!');
     }
 
     public function render()
     {
         $this->usuario = User::find($this->usuarioId);
-        
-        // Datos para la gráfica
+
         $tramitesPorMes = $this->usuario->tramites()->selectRaw('DATE_FORMAT(fecha, "%Y-%m") as mes, COUNT(*) as cantidad')
             ->where('fecha', '>=', Carbon::now()->subMonths(5)->startOfMonth())
             ->groupBy('mes')
@@ -87,7 +72,6 @@ class Detalle extends Component
         $tramitesData = [];
         $clientesData = [];
 
-        // Obtener los últimos 6 meses
         $mesesDato = collect();
         for ($i = 5; $i >= 0; $i--) {
             $mesesDato->push(Carbon::now()->subMonths($i)->format('Y-m'));

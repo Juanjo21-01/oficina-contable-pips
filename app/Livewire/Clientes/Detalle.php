@@ -41,11 +41,7 @@ class Detalle extends Component
         $cliente->estado = !$cliente->estado;
         $cliente->save();
 
-        // Mostrar mensaje
-        toastr()->addSuccess('¡Estado actualizado!', [
-            'positionClass' => 'toast-bottom-right',
-            'closeButton' => true,
-        ]);
+        $this->dispatch('toast', type: 'success', message: '¡Estado actualizado!');
     }
 
     // Abrir agencia
@@ -87,13 +83,8 @@ class Detalle extends Component
                     'observaciones' => $this->observaciones,
                 ]);
 
-                // Mostrar mensaje
-                toastr()->addInfo('¡Agencia Virtual actualizada!', [
-                    'positionClass' => 'toast-bottom-right',
-                    'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'info', message: '¡Agencia Virtual actualizada!');
             } else {
-                // Crear agencia virtual
                 AgenciaVirtual::create([
                     'cliente_id' => $this->clienteId,
                     'correo' => $this->correo,
@@ -101,21 +92,12 @@ class Detalle extends Component
                     'observaciones' => $this->observaciones,
                 ]);
 
-                // Mostrar mensaje
-                toastr()->addSuccess('¡Agencia Virtual creada!', [
-                    'positionClass' => 'toast-bottom-right',
-                    'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'success', message: '¡Agencia Virtual creada!');
             }
-            // Cerrar modal
             $this->abrirModalAgencia = false;
         } catch (\Exception $e) {
             $this->errorMessage = 'Error al guardar la agencia virtual: ' . $e->getMessage();
-            // Mostrar mensaje
-            toastr()->addError($this->errorMessage, [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: $this->errorMessage);
         }
     }
 

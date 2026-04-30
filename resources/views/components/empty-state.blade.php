@@ -23,10 +23,10 @@
         {!! $iconPath !!}
     </svg>
 
-    <p class="text-base font-semibold text-gray-500 dark:text-gray-400">{{ $message }}</p>
+    <p class="text-base font-semibold text-slate-500 dark:text-slate-400">{{ $message }}</p>
 
     @if ($subMessage)
-        <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">{{ $subMessage }}</p>
+        <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">{{ $subMessage }}</p>
     @endif
 
     @if ($actionLabel && $actionRoute)

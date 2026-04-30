@@ -41,7 +41,7 @@
         @foreach ($crumbs as $i => $crumb)
             @if (!$loop->first)
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                    class="w-3.5 h-3.5 text-gray-300 dark:text-gray-600 shrink-0">
+                    class="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 shrink-0">
                     <path fill-rule="evenodd"
                         d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
                         clip-rule="evenodd" />
@@ -49,12 +49,12 @@
             @endif
 
             @if ($crumb['active'])
-                <span class="font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[180px]">
+                <span class="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[180px]">
                     {{ $crumb['label'] }}
                 </span>
             @else
                 <a href="{{ $crumb['url'] }}" wire:navigate
-                    class="text-gray-400 dark:text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-150 truncate max-w-[140px]">
+                    class="text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-150 truncate max-w-[140px]">
                     {{ $crumb['label'] }}
                 </a>
             @endif

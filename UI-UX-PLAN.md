@@ -1,518 +1,477 @@
-# Plan de Mejoras UI/UX — Gestor de Clientes PIPS
-> Méndez García & Asociados · Laravel 11 + Livewire 3 + Tailwind CSS
-> Skills aplicadas: `frontend-design` · `ui-ux-pro-max`
+# UI/UX Refactor Plan — Gestor de Clientes PIPS
+
+> Objetivo: rehacer la interfaz completa con estructura elegante, paleta profesional, dark mode funcional y un sistema de componentes reutilizable basado en **Flux UI Free + Tailwind**.
 
 ---
 
-## Diagnóstico General
+## Contexto
 
-| Área | Estado Actual | Problema Principal |
-|------|--------------|-------------------|
-| Sistema de diseño | Inconsistente | Mezcla sky-600 (login) con teal-600 (app) sin token único |
-| Tipografía | Funcional | Sin jerarquía visual clara; tamaños arbitrarios |
-| Espaciado | Inconsistente | Padding/gap distintos entre vistas similares |
-| Componentes | Repetidos | Código duplicado en cada tabla Livewire |
-| Feedback visual | Mínimo | Sin estados vacíos, loading skeletons ni micro-animaciones |
-| Dashboard | Básico | Cards sin iconografía consistente, gráfico sin filtros |
-| Formularios | Funcional | Sin progress steps en formularios largos, UX de búsqueda mejorable |
-| Modales | Correctos | Falta animación de entrada y manejo de foco visible |
-| Responsive | Parcial | Tablas se cortan en mobile, toolbar mal apilada |
-| PDF templates | Sin estilo | Recibos sin identidad visual de marca |
+**Estado actual**
+- Laravel 11 + Livewire 3 + Volt + Tailwind 3.1 + Alpine
+- Tokens custom ya definidos (`brand` teal, `surface`, `action`, `status`)
+- Componentes Blade legacy de Breeze (`primary-button`, `text-input`, `modal`, etc.) mezclados con nuevos (`data-table`, `breadcrumb`, `empty-state`, `status-badge`, `action-buttons`)
+- Sidebar + header ya funcionales, con submenús Alpine
+- Dark mode implementado pero **defectuoso**: FOUC al cargar + estado Alpine se pierde con `wire:navigate` en algunos casos
+- Logo en `/public/img/logo.png` (raster, no SVG)
+- Toastr como notificaciones
+- CSS con animación residual de hamster en login — eliminar
 
----
-
-## Principios de Diseño a Aplicar
-
-1. **Design Tokens primero** — definir la paleta, tipografía y espaciado como variables antes de tocar componentes.
-2. **Atomic Design** — base → componentes → páginas; nada al revés.
-3. **Progressive Enhancement** — la UI funciona sin JS; Livewire y Alpine añaden capas de mejora.
-4. **Accesibilidad WCAG 2.1 AA** — contraste mínimo 4.5:1, foco visible, labels semánticos.
-5. **Dark Mode first** — revisar todos los tokens en ambos modos antes de cada entrega.
+**Decisiones tomadas**
+1. **Flux UI Free** como librería base
+2. Paleta **Indigo primary + Teal accent**
+3. Dark mode **arreglar** (no eliminar)
+4. **Módulo piloto: Clientes** antes de propagar
+5. Logo PNG → mantener por ahora, optimizar a SVG en fase posterior (no bloqueante)
 
 ---
 
-## Fases de Implementación
+## Sistema de diseño
+
+### Paleta
+
+```
+Primary (Indigo)     — brand institucional, CTA, headers activos
+  50:  #eef2ff    500: #6366f1    900: #312e81
+  100: #e0e7ff    600: #4f46e5    950: #1e1b4b
+  200: #c7d2fe    700: #4338ca
+  300: #a5b4fc    800: #3730a3
+
+Accent (Teal — `brand` actual)  — highlights, charts, selected tab, marca secundaria
+  (mantener tokens existentes: #14b8a6 → #115e59)
+
+Neutrales (Slate)    — reemplaza `gray` custom actual
+  50:  #f8fafc    500: #64748b    900: #0f172a
+  100: #f1f5f9    600: #475569    950: #020617
+  200: #e2e8f0    700: #334155
+  300: #cbd5e1    800: #1e293b
+  400: #94a3b8
+
+Semánticos
+  success: emerald-500 (#10b981)   — estado activo, pagos recibidos
+  warning: amber-500  (#f59e0b)    — pendientes, plazos próximos
+  danger:  rose-500   (#f43f5e)    — eliminar, errores, estado inactivo
+  info:    sky-500    (#0ea5e9)    — notificaciones, tips
+```
+
+**Rol por color**
+
+| Elemento | Color |
+|---------|-------|
+| Botón primario, link principal, header activo, focus ring | `primary-600` |
+| Botón secundario, bordes, divisores | `slate-200` / `slate-700` dark |
+| Texto principal | `slate-900` / `slate-100` dark |
+| Texto secundario | `slate-600` / `slate-400` dark |
+| Texto sutil (placeholder, helper) | `slate-400` / `slate-500` dark |
+| Fondo página | `slate-50` / `slate-950` dark |
+| Fondo superficie (card) | `white` / `slate-900` dark |
+| Accent (charts, selected tab, brand visual) | `brand-500` (teal) |
+
+### Tipografía
+
+```
+Sans body       → Inter variable
+Sans display    → Plus Jakarta Sans variable (títulos, headers)
+Mono numérico   → JetBrains Mono variable (precios, DPI/NIT, montos PDF)
+```
+
+Self-host vía `@fontsource-variable` (npm) — mejor performance que Google Fonts CDN. Fallback: system stack.
+
+**Escala**
+
+```
+text-xs   12px → labels menores, badges
+text-sm   14px → body tablas, form helpers
+text-base 16px → body default
+text-lg   18px → subtítulos card
+text-xl   20px → section-title
+text-2xl  24px → page-title mobile
+text-3xl  30px → page-title desktop, KPI numbers
+text-4xl  36px → dashboard KPI grande
+```
+
+Line-height: `leading-relaxed` (1.625) body; `leading-tight` (1.25) títulos. Tabular nums: `font-variant-numeric: tabular-nums` en `<td>` numéricos y KPIs.
+
+### Espaciado, radios, sombras
+
+```
+Spacing base: 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 px (ritmo 4-8pt)
+Radio: rounded-md (6) botones / rounded-lg (8) cards, inputs / rounded-xl (12) modales / rounded-full badges, avatars
+Sombra: shadow-sm default / shadow-md hover / shadow-lg overlay (dropdown, popover)
+Modal scrim: bg-slate-900/60 backdrop-blur-sm
+```
+
+Eliminar `shadow-card-hover` con `scale-[1.01]` — genera jitter y layout shift.
+
+### Iconos
+
+- **`blade-ui-kit/blade-heroicons`** — Heroicons oficial, `solid` + `outline`, size con clases Tailwind
+- Un solo set, stroke width 1.5 para outline
+- Eliminar SVGs inline en navegación y tablas → `<x-heroicon-o-home class="w-5 h-5" />`
 
 ---
 
-### FASE 1 — Fundamentos del Sistema de Diseño
-> **Objetivo:** Establecer la base visual unificada antes de modificar cualquier vista.
-> **Impacto:** Alto · **Riesgo:** Bajo · **Estimado:** 1–2 días
+## Dark mode: fix definitivo
 
-#### 1.1 Design Tokens en `tailwind.config.js`
+### Problemas actuales
 
+1. **FOUC**: script de tema lee `localStorage` **después** que body pinta → flash claro en dark mode
+2. **Estado Alpine perdido**: `wire:navigate` preserva DOM pero reinicia algunos `x-data` scopes; submenús se cierran al navegar
+3. **`darkMode` acoplado a `data()` global** del layout → difícil mantener y probar
+
+### Solución
+
+**A — Pre-paint script** (elimina FOUC)
+
+En `<head>` antes de `@vite`, script inline bloqueante:
+
+```html
+<script>
+  (function () {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = stored ? stored === 'dark' : prefersDark;
+    if (isDark) document.documentElement.classList.add('dark');
+  })();
+</script>
 ```
-Archivo: tailwind.config.js
+
+**B — Alpine.store para tema** (persistente entre `wire:navigate`)
+
+En `resources/js/app.js`:
+
+```js
+document.addEventListener('alpine:init', () => {
+  Alpine.store('theme', {
+    isDark: document.documentElement.classList.contains('dark'),
+    toggle() {
+      this.isDark = !this.isDark;
+      document.documentElement.classList.toggle('dark', this.isDark);
+      localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+    },
+  });
+});
 ```
 
-**Cambios:**
-- Unificar color primario: renombrar `sky` del login a `teal` (un solo token `brand`).
-- Añadir tokens semánticos:
-  - `color.brand.*` → teal (primario)
-  - `color.surface.*` → grays para fondos
-  - `color.content.*` → grays para textos
-  - `color.status.success/warning/danger/info`
-  - `color.action.view/edit/delete/add`
-- Definir escala de espaciado semántica: `space.xs/sm/md/lg/xl`
-- Definir `borderRadius` consistente: `card`, `badge`, `button`
+En header:
+```html
+<button @click="$store.theme.toggle()" :aria-label="$store.theme.isDark ? 'Modo claro' : 'Modo oscuro'">
+  <template x-if="!$store.theme.isDark"><!-- sol --></template>
+  <template x-if="$store.theme.isDark"><!-- luna --></template>
+</button>
+```
 
-**Resultado:** Un único lugar donde cambiar colores afecta toda la app.
+**C — Submenús con estado derivado de ruta**
+
+El sidebar actual ya calcula `$usersActive`, `$tramitesActive`, `$clientesActive`. Usar estos en `x-data="{ open: {{ $xActive ? 'true' : 'false' }} }"` pero añadir `@persist('sidebar')` (Livewire v3) alrededor del `<aside>` para mantener DOM y estado entre `wire:navigate`. Si `@persist` no resuelve, fallback: derivar 100% estado abierto de la ruta activa (sin Alpine state local), abre al navegar.
+
+**D — Integridad morph Livewire**
+
+`wire:navigate` usa morphdom. Verificar que componentes Alpine declaran `x-data` con objeto literal estable; no llamar `data()` si no existe ya en el nuevo DOM. Quitar el `x-data="data()"` gigante del `<html>`; reemplazar con stores + componentes pequeños `x-data="{ isSideMenuOpen: false }"` en los nodos que lo necesitan.
+
+### Checklist dark mode post-fix
+- [ ] Sin FOUC al refrescar con tema oscuro
+- [ ] Toggle mantiene estado tras `wire:navigate`
+- [ ] Submenús sidebar no se cierran al navegar
+- [ ] Contraste ≥ 4.5:1 texto principal en ambos temas
+- [ ] Bordes visibles en ambos temas
+- [ ] Toast / flash adapta
 
 ---
 
-#### 1.2 Variables CSS Base en `resources/css/app.css`
-
-```
-Archivo: resources/css/app.css
-```
-
-**Cambios:**
-- Añadir `@layer base` con variables CSS `--color-brand`, `--color-surface`, etc.
-- Añadir clases utilitarias reutilizables:
-  - `.card` → `bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700`
-  - `.badge-active` / `.badge-inactive` → tokens de estado
-  - `.btn-primary` / `.btn-secondary` / `.btn-danger` → botones base
-  - `.table-header` → encabezado de tabla uniforme
-- Añadir `@layer components` para clases compuestas (evitar repetición en Blade).
-- Optimizar animación hamster: extraer en `@keyframes` separados y comentar.
-
----
-
-#### 1.3 Componente Blade `<x-status-badge>`
-
-```
-Archivo: resources/views/components/status-badge.blade.php  [NUEVO]
-```
-
-**Props:** `status` (string: active|inactive|pending|completed)
-
-**Reemplaza:** Los 6+ bloques `@if ($estado === 'Activo')` repetidos en todas las tablas.
-
----
-
-#### 1.4 Componente Blade `<x-action-buttons>`
-
-```
-Archivo: resources/views/components/action-buttons.blade.php  [NUEVO]
-```
-
-**Props:** `viewRoute`, `editEvent`, `deleteEvent`, `showView`, `showEdit`, `showDelete`
-
-**Reemplaza:** El bloque de botones (ver/editar/eliminar) repetido en las 4 tablas Livewire.
-
----
-
-#### 1.5 Componente Blade `<x-data-table>`
-
-```
-Archivo: resources/views/components/data-table.blade.php  [NUEVO]
-```
-
-**Props:** `columns` (array), slot para filas, `emptyMessage`
-
-**Incluye:**
-- Estado vacío (empty state) con ícono y mensaje configurable.
-- Loading skeleton (Livewire `wire:loading`).
-- Encabezados con sort indicators (preparado para futura ordenación).
-
----
-
-### FASE 2 — Layout y Navegación
-> **Objetivo:** Mejorar la estructura visual global y la navegación.
-> **Impacto:** Alto · **Riesgo:** Medio · **Estimado:** 1–2 días
-
-#### 2.1 Sidebar Navigation (`livewire/layout/navigation.blade.php`)
-
-**Mejoras:**
-- Añadir **tooltips** en modo colapsado (preparar toggle de colapso `w-64 → w-16`).
-- Mejorar íconos: homogeneizar tamaño (`w-5 h-5` en todos).
-- Añadir **indicador de sección activa** más prominente: borde izquierdo teal-600 + fondo teal-50/dark:teal-900/20.
-- Separadores visuales (`<hr>`) entre grupos de navegación (Admin / Gestión / Reportes).
-- **Badge numérico** en Trámites (conteo de pendientes) — datos desde Livewire.
-- Agregar **avatar/iniciales del usuario** en la parte inferior del sidebar.
-- Transición de colapso/expansión fluida con `transition-all duration-300`.
-
-#### 2.2 Header (`livewire/layout/header.blade.php`)
-
-**Mejoras:**
-- Añadir **breadcrumb dinámico** (ruta actual → componente `<x-breadcrumb>`).
-- Mejorar dropdown de usuario: foto/avatar generado con iniciales + color.
-- Mover el toggle de tema a un botón más accesible con `aria-label`.
-- Añadir **indicador de notificaciones** (ícono campana, preparado para futuras notificaciones).
-- Altura fija consistente (`h-16`) para evitar reflow en Livewire updates.
-
-#### 2.3 Mobile Navigation (`livewire/layout/navigationMobile.blade.php`)
-
-**Mejoras:**
-- Añadir **overlay con blur** (`backdrop-blur-sm`) al abrir.
-- Mejorar animación: `translate-x-full → translate-x-0` (slide desde izquierda).
-- Botón de cierre más grande y accesible (`p-3` mínimo, `touch-target`).
-- Mantener posición de scroll al cerrar y reabrir.
-
-#### 2.4 Footer (`layouts/footer.blade.php`)
-
-**Mejoras:**
-- Reducir altura — actualmente ocupa demasiado espacio vertical en pantallas pequeñas.
-- Simplificar a una sola línea en mobile.
-- Mejorar contraste del texto de atribución.
-
----
-
-### FASE 3 — Dashboard
-> **Objetivo:** Convertir el dashboard en un panel informativo real y visualmente atractivo.
-> **Impacto:** Muy Alto · **Riesgo:** Bajo · **Estimado:** 2–3 días
-
-#### 3.1 Hero / Welcome Card
-
-**Mejoras:**
-- Reemplazar gradiente plano por **card glassmorphism** con fondo teal degradado.
-- Mostrar: nombre del usuario, rol, última sesión.
-- Reloj en tiempo real mantenerlo pero con tipografía más grande y elegante.
-- Añadir **estado del sistema** (trámites pendientes del día).
-
-#### 3.2 Tarjetas de Estadísticas (KPI Cards)
-
-**Rediseño completo:**
-```
-┌─────────────────────────────┐
-│  [Ícono coloreado]   [+12%] │
-│                             │
-│  247                        │
-│  Total Trámites             │
-│  ─────────────────          │
-│  vs mes anterior: +18       │
-└─────────────────────────────┘
-```
-- Añadir **tendencia** (porcentaje vs mes anterior) con flecha ↑↓ coloreada.
-- Hover: elevación con `shadow-xl` + ligero `scale-105`.
-- Ícono con fondo de color suave (no emoji, Heroicons consistentes).
-- Transición de números con `CountUp.js` o CSS counter animation.
-
-#### 3.3 Gráfico de Estadísticas
-
-**Mejoras:**
-- Añadir **selector de período** (semana / mes / trimestre / año) sin recargar página.
-- Usar Chart.js con tema personalizado que respete el dark mode automáticamente.
-- Añadir segundo dataset (Clientes nuevos vs Trámites) en gráfico combinado.
-- Tooltip mejorado con formato de moneda y fechas en español.
-- Añadir leyenda interactiva (clic para mostrar/ocultar series).
-
-#### 3.4 Quick Actions
-
-**Mejoras:**
-- Convertir los 3 botones en **tarjetas de acción** con ícono grande y descripción corta.
-- Añadir acceso directo a "Ver Reportes del mes" y "Bitácora reciente".
-- Layout: 2 columnas en mobile, 3–4 en desktop.
-
-#### 3.5 Tablas Recientes
-
-**Mejoras:**
-- Reemplazar listas simples por **mini-cards** con más información contextual.
-- Añadir estado visual claro (badge de estado en cada ítem).
-- "Ver todos →" link al final de cada sección.
-- Skeleton loading mientras carga Livewire.
-
----
-
-### FASE 4 — Tablas de Datos (Livewire)
-> **Objetivo:** Tablas más usables, rápidas y visualmente consistentes.
-> **Impacto:** Muy Alto · **Riesgo:** Medio · **Estimado:** 2–3 días
-
-#### 4.1 Toolbar Unificado (aplicar a las 4 tablas)
-
-**Rediseño del toolbar:**
-```
-┌──────────────────────────────────────────────────────────────┐
-│ [+ Agregar]    [🔍 Buscar...........] [Estado ▾] [10 ▾] [⚙] │
-└──────────────────────────────────────────────────────────────┘
-```
-- Búsqueda con ícono integrado (no label externo).
-- Filtros como `<x-select-filter>` componente reutilizable.
-- Botón "+" prominente con ícono + texto en desktop, solo ícono en mobile.
-- Botón de opciones avanzadas `⚙` para filtros adicionales (expandible).
-- Contador de resultados: "Mostrando 10 de 247 registros".
-
-#### 4.2 Tabla: Clientes (`livewire/clientes/tabla.blade.php`)
-
-**Mejoras específicas:**
-- Columna Nombres: añadir **avatar con iniciales** + nombre completo + dirección como subtexto.
-- Añadir columna **Tipo de Cliente** con badge de color por tipo.
-- Condensar DPI/NIT en una sola columna de 2 líneas para ganar espacio.
-- **Acción de estado** como toggle switch (`<x-toggle>`) en lugar de botón texto.
-- Row hover: `bg-teal-50/50 dark:bg-teal-900/10` para indicar seleccionabilidad.
-- Click en la fila completa → ver detalle (no solo el botón).
-
-#### 4.3 Tabla: Trámites (`livewire/tramites/tabla.blade.php`)
-
-**Mejoras específicas:**
-- Columna Cliente: mostrar nombre + tipo de cliente como subtexto.
-- Columna Precio: alinear a la derecha con formato moneda `Q 1,250.00`.
-- Añadir columna **Gastos** y **Ganancia neta** (precio − gastos) en color teal.
-- Estado: añadir color semántico para estados intermedios (En proceso, Completado, Cancelado).
-- Añadir **filtro de fecha** (rango) en el toolbar.
-- Fila expandible (acordeón) para ver observaciones sin abrir modal.
-
-#### 4.4 Tabla: Usuarios (`livewire/usuarios/tabla.blade.php`)
-
-**Mejoras específicas:**
-- Avatar con iniciales coloreadas según rol.
-- Badge de rol con color específico por rol.
-- Columna Estado como toggle switch accesible.
-- Protección visual: fila del Admin con estilo diferenciado (no eliminable).
-
-#### 4.5 Tabla: Roles (`livewire/roles/tabla.blade.php`)
-
-**Mejoras específicas:**
-- Mostrar lista de permisos como mini-badges en la fila.
-- Contador de usuarios con ícono de persona.
-- Expandir a ancho completo (quitar el `lg:w-3/4` arbitrario).
-
-#### 4.6 Empty States (aplicar a todas las tablas)
-
-```
-┌─────────────────────────────────┐
-│         [Ícono grande]          │
-│    No hay clientes registrados  │
-│    Agrega el primero ahora →    │
-│       [+ Agregar Cliente]       │
-└─────────────────────────────────┘
-```
-- Ícono SVG relevante por tabla.
-- Mensaje contextual (diferente si hay búsqueda activa vs tabla vacía).
-- CTA directo al formulario de creación.
-
-#### 4.7 Loading States
-
-- `wire:loading` skeleton en cada tabla: filas grises animadas mientras carga.
-- Spinner en botones de acción al procesar.
-- Deshabilitar toolbar durante operaciones Livewire.
-
----
-
-### FASE 5 — Formularios
-> **Objetivo:** Formularios más guiados, claros y con mejor UX de validación.
-> **Impacto:** Alto · **Riesgo:** Medio · **Estimado:** 2 días
-
-#### 5.1 Componente `<x-form-section>` (Tarjeta de formulario)
-
-```
-Archivo: resources/views/components/form-section.blade.php  [NUEVO]
-```
-
-**Estandarizar el patrón de card de formulario:**
-- Header con ícono + título + descripción opcional.
-- Contenido en grid configurable (1/2/3 columnas).
-- Footer con botones de acción alineados a la derecha.
-- Indicador de campos requeridos (`*`) con leyenda al pie.
-
-#### 5.2 Formulario de Clientes (`livewire/clientes/formulario.blade.php`)
-
-**Mejoras:**
-- **Progress steps visual** en la parte superior: `Información → Datos Fiscales → Confirmar`.
-- Validación en tiempo real con indicador verde ✓ por campo.
-- Máscara de formato para DPI (####-#####-####) y teléfono.
-- Campo Email con verificación de formato en tiempo real.
-- Estado de "guardando..." en el botón submit con spinner.
-- Botón "Cancelar" que pregunta si hay cambios sin guardar.
-
-#### 5.3 Formulario de Trámites (`livewire/tramites/formulario.blade.php`)
-
-**Mejoras:**
-- **Búsqueda de cliente mejorada**: dropdown con avatar + nombre + DPI para identificar.
-- **Autocompletado inteligente**: al seleccionar tipo de trámite, pre-llenar precio sugerido.
-- Campo Precio y Gastos: formato numérico con separador de miles.
-- Mostrar **ganancia calculada en tiempo real** (precio − gastos) mientras se escribe.
-- Selector de fecha con calendario (Flatpickr o HTML5 date con estilo Tailwind).
-- Sección de Observaciones con contador de caracteres.
-
-#### 5.4 Modal de Edición Unificado
-
-**Mejoras para todos los modales:**
-- Animación de entrada: `scale-95 opacity-0 → scale-100 opacity-100` (ya existe, mejorar timing).
-- Header con color semántico: teal para crear, amber para editar.
-- Foco automático en el primer campo al abrir.
-- Cierre con `Escape` con confirmación si hay cambios.
-- Botones: "Guardar" (primario) + "Cancelar" (secundario), nunca solo "X".
-- Ancho adaptativo: sm para confirmaciones, md para formularios simples, lg para formularios completos.
-
-#### 5.5 Feedback de Éxito/Error
-
-**Mejorar el sistema de Toastr:**
-- Posición: `top-right` consistente en todas las vistas.
-- Duración: 3s éxito, 5s error (no autocierre en errores críticos).
-- Icono visual diferenciado por tipo (✓ / ✗ / ⚠ / ℹ).
-- Stack de notificaciones (máximo 3 visibles al mismo tiempo).
-
----
-
-### FASE 6 — Páginas de Autenticación
-> **Objetivo:** Mejorar la primera impresión y coherencia de marca.
-> **Impacto:** Medio · **Riesgo:** Bajo · **Estimado:** 1 día
-
-#### 6.1 Layout Guest (`layouts/guest.blade.php`)
-
-**Rediseño:**
-- Panel izquierdo: reemplazar imagen estática por **fondo con gradiente animado** + logo centrado + tagline de la empresa.
-- Añadir patrón geométrico SVG sutil en el fondo del panel izquierdo.
-- Panel derecho: centrar mejor el formulario, añadir separación visual más generosa.
-
-#### 6.2 Página de Login (`livewire/pages/auth/login.blade.php`)
-
-**Mejoras:**
-- **Unificar color del botón** a `teal-600` (actualmente usa `sky-600`, inconsistente).
-- Añadir logo de la empresa sobre el formulario.
-- Mostrar/ocultar contraseña (toggle ojo).
-- Mejor manejo de errores: campo con borde rojo + mensaje inline (no solo toast).
-- Añadir animación de shake en el formulario cuando las credenciales son incorrectas.
-- Texto "Recordarme" más descriptivo.
-
----
-
-### FASE 7 — Páginas de Perfil y Reportes
-> **Objetivo:** Mejorar usabilidad de páginas secundarias importantes.
-> **Impacto:** Medio · **Riesgo:** Bajo · **Estimado:** 1–2 días
-
-#### 7.1 Perfil de Usuario (`profile.blade.php`)
-
-**Mejoras:**
-- Añadir **foto de perfil** (upload o avatar generado con iniciales + color por hash).
-- Card de información: layout de 3 columnas con datos del usuario de forma prominente.
-- Sección de cambio de contraseña: indicador de fortaleza de contraseña en tiempo real.
-- Historial reciente (clientes y trámites) en tabs en lugar de secciones separadas.
-- Añadir sección "Actividad reciente" basada en bitácora.
-
-#### 7.2 Reportes (`reportes/`)
-
-**Mejoras:**
-- **Selector de tipo de reporte** como tarjetas visuales (no dropdown).
-- Rango de fechas con date-range picker visual.
-- **Preview del reporte** antes de generar PDF (tabla en la página).
-- Botón de descarga con ícono PDF + nombre del archivo sugerido.
-- Historial de reportes generados en la sesión.
-
-#### 7.3 Bitácora (`livewire/bitacora/`)
-
-**Mejoras:**
-- Timeline visual en lugar de tabla plana.
-- Ícono por tipo de acción (creación ✓ verde / eliminación ✗ rojo / reporte 📄 azul).
-- Filtros: por usuario, tipo de acción, rango de fechas.
-- Expandir entrada para ver descripción completa.
-
----
-
-### FASE 8 — Templates PDF
-> **Objetivo:** Recibos y reportes con identidad visual profesional.
-> **Impacto:** Alto (imagen de empresa) · **Riesgo:** Bajo · **Estimado:** 1 día
-
-#### 8.1 Recibo de Trámite (`views/pdf/recibo.blade.php`)
-
-**Rediseño completo:**
-```
-┌─────────────────────────────────────┐
-│  LOGO    Méndez García & Asociados  │
-│          Tel / Email / Dirección    │
-├─────────────────────────────────────┤
-│  RECIBO DE HONORARIOS  #000247      │
-│  Fecha: 16/04/2026                  │
-├─────────────────────────────────────┤
-│  Cliente: Juan García               │
-│  DPI: 2345-67890-0101               │
-│  NIT: 12345-6                       │
-├─────────────────────────────────────┤
-│  CONCEPTO           MONTO           │
-│  Trámite de XX      Q 1,250.00      │
-│  Gastos             Q   150.00      │
-│  ─────────────────────────────      │
-│  TOTAL              Q 1,100.00      │
-├─────────────────────────────────────┤
-│  Firma: _______________             │
-│  Sello                              │
-└─────────────────────────────────────┘
-```
-- Cabecera con logo + datos de la empresa.
-- Número de recibo correlativo.
-- Desglose de precio / gastos / neto.
-- Área de firma y sello.
-- Pie con datos legales.
-- Color teal para cabecera y totales.
-
-#### 8.2 Reporte General (`views/pdf/reporte.blade.php`)
-
-**Mejoras:**
-- Portada con período del reporte y logo.
-- Resumen ejecutivo (KPIs del período) en tabla visual.
-- Tabla de detalle con zebra striping.
-- Pie de página con numeración y fecha de generación.
-- Gráfico de barras embebido (DomPDF soporta imágenes base64).
-
----
-
-### FASE 9 — Páginas de Error
-> **Objetivo:** Mejorar la experiencia en estados de error.
-> **Impacto:** Bajo · **Riesgo:** Muy Bajo · **Estimado:** 0.5 días
-
-#### 9.1 Error Pages (404, 403, 500)
-
-**Mejoras:**
-- Mantener la animación del hamster (es un diferenciador divertido).
-- Añadir **mensaje de ayuda contextual** por código de error.
-- Botón "Volver atrás" + "Ir al Dashboard" (dos opciones).
-- Reportar error 500 (link al email de soporte).
-- Mejorar tipografía: el `text-8xl` del número es correcto, añadir más contexto visual.
-- Fondo con patrón sutil (no color plano).
-
----
-
-## Orden de Implementación Definitivo
-
-| # | Fase | Componentes | Prioridad | Días |
-|---|------|-------------|-----------|------|
-| 1 | Design Tokens + CSS base | `tailwind.config.js`, `app.css`, 3 componentes Blade nuevos | 🔴 Crítico | 1–2 |
-| 2 | Layout y Navegación | `navigation.blade.php`, `header.blade.php`, `navigationMobile.blade.php` | 🔴 Crítico | 1–2 |
-| 3 | Dashboard | `dashboard.blade.php`, Chart.js config | 🟠 Alto | 2–3 |
-| 4 | Tablas de Datos | 4 tablas Livewire + empty states + loading | 🟠 Alto | 2–3 |
-| 5 | Formularios | 2 formularios + modales + sistema toastr | 🟠 Alto | 2 |
-| 6 | Autenticación | `guest.blade.php`, `login.blade.php` | 🟡 Medio | 1 |
-| 7 | Perfil y Reportes | `profile.blade.php`, `reportes/`, `bitacora/` | 🟡 Medio | 1–2 |
-| 8 | PDFs | `recibo.blade.php`, `reporte.blade.php` | 🟡 Medio | 1 |
-| 9 | Error Pages | `404.blade.php`, `403.blade.php`, `500.blade.php` | 🟢 Bajo | 0.5 |
-| | **TOTAL** | **~40 archivos afectados** | | **~14–17 días** |
-
----
-
-## Nuevos Archivos a Crear
-
-```
-resources/views/components/
-├── status-badge.blade.php          ← Fase 1
-├── action-buttons.blade.php        ← Fase 1
-├── data-table.blade.php            ← Fase 1
-├── form-section.blade.php          ← Fase 5
-├── breadcrumb.blade.php            ← Fase 2
-├── select-filter.blade.php         ← Fase 4
-├── toggle.blade.php                ← Fase 4
-└── avatar-initials.blade.php       ← Fase 2 / 4
+## Librerías a instalar
+
+| Paquete | Razón |
+|---------|-------|
+| `livewire/flux` | Componentes oficiales Livewire (gratis tier): button, input, select, modal, dropdown, toast, badge, card, table |
+| `blade-ui-kit/blade-heroicons` | Iconos SVG consistentes vía Blade |
+| `@fontsource-variable/inter` | Self-host Inter |
+| `@fontsource-variable/plus-jakarta-sans` | Self-host Jakarta |
+| `@fontsource-variable/jetbrains-mono` | Self-host JetBrains Mono |
+
+**Comandos**
+```bash
+composer require livewire/flux blade-ui-kit/blade-heroicons
+npm install @fontsource-variable/inter @fontsource-variable/plus-jakarta-sans @fontsource-variable/jetbrains-mono
+php artisan flux:activate   # publica assets Flux (free tier, sin licencia)
 ```
 
 ---
 
-## Dependencias y Riesgos
+## Auditoría de componentes actuales
+
+### Mantener tal cual (ajustes menores)
+- `breadcrumb.blade.php` — OK, actualizar tokens
+- `empty-state.blade.php` — OK, añadir variante `icon` prop
+- `data-table.blade.php` — base sólida; envolver tabla Flux
+- `status-badge.blade.php` — adaptar tokens semánticos
+- `action-buttons.blade.php` — reemplazar SVGs por Heroicons
+
+### Refactor / reemplazar por Flux
+
+| Legacy | Nuevo |
+|--------|-------|
+| `primary-button.blade.php` | `<flux:button variant="primary">` |
+| `secondary-button.blade.php` | `<flux:button variant="outline">` |
+| `danger-button.blade.php` | `<flux:button variant="danger">` |
+| `text-input.blade.php` | `<flux:input>` |
+| `input-label.blade.php` | integrado en `<flux:field>` |
+| `input-error.blade.php` | integrado en `<flux:error>` |
+| `modal.blade.php` | `<flux:modal>` |
+| `dropdown.blade.php` | `<flux:dropdown>` |
+| `dropdown-link.blade.php` | `<flux:dropdown.item>` |
+| `nav-link.blade.php` | `<flux:navlist.item>` o custom sidebar |
+| `responsive-nav-link.blade.php` | igual |
+| `application-logo.blade.php` | `<x-ui.logo>` nuevo |
+| `action-message.blade.php` | Flux toast |
+| `auth-session-status.blade.php` | mantener pero restilear |
+
+### Nuevos a crear
+
+```
+resources/views/components/ui/
+  logo.blade.php         — wrapper logo, soporta size + dark variant
+  page-header.blade.php  — title + description + actions slot
+  stat-card.blade.php    — KPI dashboard (icon + label + value + trend)
+  form-field.blade.php   — label + flux:input + error + helper (si Flux no cubre bien)
+  date-range-picker.blade.php  — para reportes
+  toast-host.blade.php   — notificaciones (reemplaza Toastr)
+  section.blade.php      — card con header / body / footer slots
+  kbd.blade.php          — atajos teclado
+```
+
+### Eliminar
+- CSS `.wheel-and-hamster` y keyframes (líneas 149-489 de `resources/css/app.css`) — peso muerto
+- Toastr: `yoeunes/toastr` → reemplazar por Flux toast o componente Alpine custom
+- `x-data="data()"` gigante en `<html>` del layout → dividir en stores + micro-componentes
+
+---
+
+## Plan de fases
+
+### Fase 0 — Foundation (1-2 días)
+
+**Tareas**
+1. Instalar Flux + Heroicons + fonts (comandos arriba)
+2. `php artisan flux:activate`
+3. Actualizar `tailwind.config.js`:
+   - Añadir paleta `primary` (indigo)
+   - Reemplazar `gray` custom por `slate`
+   - Añadir `fontFamily.display` (Jakarta) y `fontFamily.mono` (JetBrains)
+   - Añadir `content` paths de Flux: `./vendor/livewire/flux/stubs/**/*.blade.php`
+   - Mantener `brand` (teal) como accent
+4. Actualizar `resources/css/app.css`:
+   - Import `@fontsource-variable/*`
+   - Eliminar hamster CSS
+   - Reescribir `@layer components` con tokens nuevos (primary para CTAs, brand solo para accent)
+   - Mantener utilidades útiles (`.card`, `.badge-*`, `.table-*`) con nuevos tokens
+5. Pre-paint theme script en `<head>` del layout
+6. Alpine store `theme` en `resources/js/app.js`
+7. Reemplazar toggle actual del header por `$store.theme`
+
+**Criterio éxito**
+- `npm run build` sin errores
+- Login + dashboard cargan con fuentes nuevas, paleta nueva
+- Dark mode sin FOUC, persiste entre navegaciones
+
+### Fase 1 — Layout shell (1 día)
+
+**Tareas**
+1. Refactor `layouts/app.blade.php`:
+   - Eliminar `data()` Alpine gigante, dejar solo estados esenciales en componentes pequeños
+   - Mover tema a store
+   - Estructura: `<aside sidebar>` + `<main>` con header sticky
+2. Refactor `livewire/layout/navigation.blade.php`:
+   - Reemplazar SVGs inline por `<x-heroicon-o-*>`
+   - Usar tokens primary
+   - Submenú abierto derivado de ruta activa (ya existe lógica `$xActive`)
+   - Logo wrapper `<x-ui.logo>`
+3. Refactor `livewire/layout/header.blade.php`:
+   - Breadcrumbs + search global (`Ctrl+K` abre modal Flux command — opcional fase tardía)
+   - Theme toggle con `$store.theme`
+   - User dropdown con `<flux:dropdown>`
+4. Mobile nav: convertir a bottom-nav en `<md` (5 ítems top level) o mantener drawer con Flux
+5. Footer minimalista
+
+**Criterio éxito**
+- Sidebar desktop + bottom nav mobile funcionando
+- Breadcrumbs consistentes en todas las rutas
+- Dark mode correcto en todo el shell
+
+### Fase 2 — Átomos UI (2 días)
+
+Crear `resources/views/components/ui/*`. Cada uno con:
+- Props tipadas
+- Soporte dark mode
+- Slots para extensión
+- Comentario breve de uso
+
+Botones, inputs, selects → alias / envolturas sobre Flux para ergonomía consistente.
+
+### Fase 3 — Moléculas (1-2 días)
+
+- `page-header` estándar arriba de cada página
+- `data-table` refactor: Flux table + toolbar (search, filter dropdown, bulk actions slot)
+- `form-field` usado en Formulario de Clientes
+- Toast host reemplaza Toastr
+
+### Fase 4 — Piloto Clientes (2-3 días)
+
+**Archivos**
+- `resources/views/clientes/index.blade.php`
+- `resources/views/clientes/crear.blade.php`
+- `resources/views/clientes/mostrar.blade.php`
+- `resources/views/livewire/clientes/tabla.blade.php`
+- `resources/views/livewire/clientes/formulario.blade.php`
+- `resources/views/livewire/clientes/detalle.blade.php`
+- `resources/views/livewire/clientes/modal.blade.php`
+
+**Patrón nuevo**
+
+```blade
+<x-app-layout>
+  <x-ui.page-header
+    title="Clientes"
+    description="Gestión de clientes de la oficina contable.">
+    <x-slot name="actions">
+      <flux:button :href="route('clientes.crear')" variant="primary" icon="plus" wire:navigate>
+        Nuevo cliente
+      </flux:button>
+    </x-slot>
+  </x-ui.page-header>
+
+  <livewire:clientes.tabla />
+</x-app-layout>
+```
+
+**Tabla (Livewire)**
+- Toolbar: search + filter por tipo + filter por estado
+- Columnas: avatar inicial + nombre completo / DPI (mono) / NIT (mono) / tipo (badge) / estado (badge) / acciones
+- Paginación Flux
+- Empty state con CTA
+- Skeleton en `wire:loading.delay`
+
+**Formulario** — dividir en tabs:
+1. **Datos personales**: nombres, apellidos, DPI, NIT, email, teléfono, dirección, tipo
+2. **Agencia Virtual**: correo, password (toggle show), observaciones
+3. **Preferencias** (opcional): estado, notas internas
+
+Usar `<flux:field>` + `<flux:input>` + `<flux:error>` + helper text por campo.
+
+**Detalle** — layout 2 columnas:
+- Izq: info del cliente (card)
+- Der: tabs **Trámites** (tabla compacta) + **Agencia Virtual** (card credencial) + **Timeline bitácora**
+
+**Criterio éxito**
+- Módulo Clientes 100% Flux + tokens nuevos
+- Dark mode sin bugs
+- Responsive: tabla → cards en mobile
+- Sin regresión funcional
+
+### Fase 5 — Demás módulos (1 día por módulo × 7)
+
+Orden sugerido:
+1. **Dashboard** — stat-cards nuevos + charts Chart.js con paleta nueva
+2. **Trámites** — patrón igual a Clientes + timeline de estado
+3. **Tipo Clientes / Tipo Trámites** — simple, reusa data-table
+4. **Usuarios** — data-table + role badges
+5. **Roles** — cards users por rol, responsive grid
+6. **Bitácora** — feed vertical color-coded por tipo (creacion/eliminacion/reporte)
+7. **Reportes** — tabs semana/mes/rango + date-range-picker + preview tabla antes de PDF
+
+### Fase 6 — Detalles pro (1-2 días)
+
+- Keyboard shortcuts: `Ctrl+K` búsqueda global, `Esc` cerrar modal, `/` focus search
+- Loading states: skeletons tablas, spinners en botones (`wire:loading`)
+- Empty states en toda tabla/lista vacía
+- Focus rings consistentes: `focus-visible:ring-2 focus-visible:ring-primary-500/60`
+- Transiciones: `transition-colors duration-150` global, modal slide-up + fade
+- Tabular numerics en montos / DPI / NIT
+- Responsive QA en 375 / 768 / 1024 / 1440
+- Accesibilidad: contraste verificado, `aria-label` en botones icon-only, `prefers-reduced-motion`
+- Limpiar CSS residual e imports obsoletos
+
+### Fase 7 — PDF restyle (1 día)
+
+Templates en `resources/views/pdf/`:
+- Header: logo oficina + datos contacto
+- Typography: JetBrains Mono en tablas de montos
+- Footer: paginación, fecha, generado-por
+- Firma / sello placeholder en recibo
+- Paleta coherente con UI (primary + neutral)
+
+DomPDF no soporta Tailwind JIT → usar clases core o CSS plano embebido en template.
+
+---
+
+## Estimación total
+
+| Fase | Días | Crítica |
+|------|------|---------|
+| 0 Foundation + instalar Flux | 1-2 | sí |
+| 1 Layout shell + dark mode fix | 1 | sí |
+| 2 Átomos UI | 2 | sí |
+| 3 Moléculas | 1-2 | sí |
+| 4 **Piloto Clientes** | 2-3 | sí (validación) |
+| 5 Demás módulos × 7 | 7 | paralelizable |
+| 6 Detalles pro | 1-2 | sí |
+| 7 PDFs | 1 | no bloqueante |
+| **Total** | **16-19** | — |
+
+---
+
+## Archivos clave
+
+| Archivo | Cambio |
+|---------|--------|
+| `composer.json` | + flux + heroicons |
+| `package.json` | + fontsource-variable × 3 |
+| `tailwind.config.js` | + primary, + fontFamily display/mono, content Flux stubs |
+| `resources/css/app.css` | reescribir componentes, eliminar hamster |
+| `resources/js/app.js` | Alpine.store theme |
+| `resources/views/layouts/app.blade.php` | pre-paint script, limpiar Alpine data() |
+| `resources/views/layouts/guest.blade.php` | restilear auth |
+| `resources/views/livewire/layout/navigation.blade.php` | Heroicons, tokens nuevos |
+| `resources/views/livewire/layout/navigationMobile.blade.php` | bottom nav |
+| `resources/views/livewire/layout/header.blade.php` | $store.theme, Flux dropdown |
+| `resources/views/components/` | retirar legacy, añadir `ui/*` |
+| `resources/views/livewire/clientes/*` | refactor piloto |
+| `resources/views/pdf/*` | fase 7 |
+
+---
+
+## Riesgos y mitigación
 
 | Riesgo | Mitigación |
 |--------|-----------|
-| Livewire re-renders pueden perder clases CSS dinámicas | Usar `wire:key` en todos los loops; clases estáticas en componentes |
-| Dark mode inconsistente en nuevos componentes | Revisar cada nuevo componente en ambos modos antes de merge |
-| DomPDF no soporta todas las propiedades CSS3 (PDF) | Usar CSS inline básico en templates PDF; probar con `npm run build` |
-| Alpine.js conflicto con nuevos componentes interactivos | Namespace los componentes Alpine (`x-data="componentName()"`) |
-| Toastr puede conflictuar con nuevas notificaciones Livewire | Evaluar migrar a `wire:dispatch` + componente Blade nativo |
+| Flux estilos chocan con tokens custom | Envolver en componentes propios; override con Tailwind arbitrary values; ajustar tema Flux si es publicable |
+| `wire:navigate` rompe Alpine store | Confirmar con piloto; fallback a reload normal en rutas problemáticas |
+| Toastr sigue usado en backend flash() | Dejar compat temporal mientras migra `toast-host` |
+| DomPDF no soporta fuentes variables | Fuentes estáticas fallback solo para PDFs |
+| Regresión visual sin tests | Screenshot manual pre/post por módulo; branch separado hasta merge final |
 
 ---
 
-## Métricas de Éxito
+## Orden de ejecución
 
-- [ ] Lighthouse Performance ≥ 85 (actualmente estimado ~70)
-- [ ] Lighthouse Accessibility ≥ 90
-- [ ] 0 errores de contraste WCAG AA
-- [ ] Tiempo de carga del dashboard < 1.5s (LCP)
-- [ ] Todas las tablas operables en pantalla 375px sin scroll horizontal
-- [ ] Dark mode al 100% sin elementos con colores hardcoded
+1. **Aprobar plan** ← aquí estamos
+2. **Fase 0**: instalar libs, tokens, fix dark mode
+3. **Fase 1**: layout shell
+4. **Fase 2-3**: átomos + moléculas
+5. **Fase 4**: piloto Clientes → **revisión humana** antes de propagar
+6. **Fase 5**: demás módulos (paralelizable)
+7. **Fase 6-7**: detalles + PDFs
+
+**Trabajo en branch dedicado** `refactor/ui-v2`. Merge a `main` solo tras revisión completa del piloto.
+
+---
+
+## Siguiente acción
+
+Ejecutar Fase 0:
+```bash
+composer require livewire/flux blade-ui-kit/blade-heroicons
+npm install @fontsource-variable/inter @fontsource-variable/plus-jakarta-sans @fontsource-variable/jetbrains-mono
+php artisan flux:activate
+```
+
+Tras confirmar, avanzo con cambios de configuración y fix de dark mode.

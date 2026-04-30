@@ -1,215 +1,188 @@
 <div>
-    <!-- Titulo -->
-    <h4 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-4">
-        Tabla de Clientes
-    </h4>
+    <x-data-table :columns="[
+        ['label' => '#', 'width' => 'w-[4%]'],
+        ['label' => 'Cliente', 'width' => 'w-[28%]', 'align' => 'left'],
+        ['label' => 'DPI', 'width' => 'w-[15%]'],
+        ['label' => 'NIT', 'width' => 'w-[12%]'],
+        ['label' => 'Tipo', 'width' => 'w-[14%]'],
+        ['label' => 'Estado', 'width' => 'w-[10%]'],
+        ['label' => 'Acciones', 'width' => 'w-[7%]'],
+    ]" :skeleton-rows="5">
 
-    <div
-        class="w-full flex flex-col md:flex-row items-center justify-between gap-4 mb-4 space-y-2 sm:space-y-0 sm:space-x-4">
-        <!-- Agregar cliente -->
-        <a class="w-full md:w-6/12 flex items-center justify-center sm:justify-between p-4 font-semibold text-teal-100 bg-teal-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-teal cursor-pointer hover:bg-teal-700 transition-colors duration-150 border border-transparent"
-            href="{{ route('clientes.crear') }}" wire:navigate>
-            <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                <span class="pl-4 pr-1">Agregar </span>
-                <span class="hidden md:inline"> nuevo cliente</span>
+        {{-- ── Toolbar ─────────────────────────────────────────────── --}}
+        <x-slot name="toolbar">
+            {{-- Search --}}
+            <div class="search-wrap w-full max-w-xs">
+                <x-heroicon-o-magnifying-glass />
+                <input wire:model.live.debounce.500ms="search" type="search" placeholder="Buscar cliente..."
+                    autocomplete="off" />
             </div>
-            <span class="hidden sm:inline">Vamos &RightArrow;</span>
-        </a>
 
-        <!-- Buscador y filtro -->
-        <div
-            class="w-full md:w-6/12 flex flex-col sm:flex-row items-center justify-end gap-2 mb-4 space-y-0 sm:space-x-4">
-            <!-- Input de búsqueda -->
-            <div class="w-full sm:w-6/12">
-                <x-input-label for="search" :value="__('Buscar')" />
-                <x-text-input wire:model.live.debounce.500ms="search" id="search" placeholder="......"
-                    class="block w-full mt-1 px-3 py-1 " type="text" />
-            </div>
-            <!-- Filtros -->
-            <div class="w-full sm:w-6/12 flex gap-4">
-                <div class="w-8/12">
-                    <x-input-label for="estado" :value="__('Estado')" />
-                    <select wire:model.live="estado" id="estado"
-                        class="block w-full mt-1 pl-3 pr-7 py-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-teal-400 dark:focus:border-teal-600 focus:outline-none focus:shadow-outline-teal rounded-md shadow-sm form-select">
-                        <option value="">Todos</option>
-                        <option value="1">Activos</option>
-                        <option value="0">Inactivos</option>
-                    </select>
-                </div>
-                <div class="w-4/12">
-                    <x-input-label for="perPage" :value="__('Mostrar')" />
-                    <select wire:model.live="perPage" id="perPage"
-                        class="block w-full mt-1 pl-3 pr-7 py-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-teal-400 dark:focus:border-teal-600 focus:outline-none focus:shadow-outline-teal rounded-md shadow-sm form-select">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="15">15</option>
-                        <option value="25">25</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabla de clientes -->
-    <div class="w-full overflow-hidden rounded-lg shadow-lg border mx-auto dark:border-gray-700 mb-4">
-        <div class="w-full overflow-x-auto">
-            <table class="w-full min-w-full table-auto whitespace-nowrap">
-                <thead>
-                    <tr
-                        class="text-xs font-semibold tracking-widest text-center text-gray-500 uppercase border-b-2  dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                        <th class="px-4 py-3 w-1/12">No.</th>
-                        <th class="px-4 py-3 w-3/12">Nombres</th>
-                        <th class="px-4 py-3 w-1/12">DPI</th>
-                        <th class="px-4 py-3 w-2/12">Correo</th>
-                        <th class="px-4 py-3 w-1/12">NIT</th>
-                        <th class="px-4 py-3 w-1/12">Teléfono</th>
-                        <th class="px-4 py-3 w-1/12">Estado</th>
-                        <th class="px-4 py-3 w-2/12">Acciones</th>
-                    </tr>
-                </thead>
-
-                <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
-                    @if ($clientes->isEmpty())
-                        <tr class="text-gray-700 dark:text-gray-400 text-center">
-                            <td class="px-4 py-3" colspan="8">No hay registros</td>
-                        </tr>
-                    @endif
-                    @foreach ($clientes as $cliente)
-                        <tr class="text-gray-700 dark:text-gray-400 text-center">
-                            <td class="px-4 py-3 w-1/12 font-semibold">{{ $loop->iteration }}</td>
-                            <td class="px-4 py-3 w-3/12">
-                                <p class="font-semibold">{{ $cliente->nombres }} {{ $cliente->apellidos }}</p>
-                                <p class="text-xs text-gray-600 dark:text-gray-400">
-                                    {{ $cliente->direccion }}
-                                </p>
-                            </td>
-                            <td class="px-4 py-3 w-1/12">{{ $cliente->dpi }}</td>
-                            <td class="px-4 py-3 w-2/12">{{ $cliente->email }}</td>
-                            <td class="px-4 py-3 w-1/12">{{ $cliente->nit }}</td>
-                            <td class="px-4 py-3 w-1/12">{{ $cliente->telefono }}</td>
-                            <td class="px-4 py-3 w-1/12">
-                                <button wire:click="cambiarEstado({{ $cliente->id }})"
-                                    class="px-4 py-2 font-semibold leading-tight rounded-full {{ $cliente->estado == 1 ? 'bg-teal-100 dark:bg-teal-700 text-teal-700 dark:text-teal-100 ' : 'bg-rose-100 dark:bg-rose-700 text-rose-700 dark:text-rose-100' }}">
-                                    {{ $cliente->estado == 1 ? 'Activo' : 'Inactivo' }}
-                                </button>
-                            </td>
-                            <td class="px-4 py-3 w-2/12">
-                                <div class="flex justify-center items-center space-x-1">
-                                    <a title="Ver información del cliente"
-                                        href="{{ route('clientes.mostrar', $cliente->id) }}"
-                                        class="py-1 px-2 text-purple-600 rounded-lg focus:outline-none focus:shadow-outline-gray hover:border hover:border-purple-600 border border-transparent"
-                                        aria-label="Ver">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="currentColor" class="size-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                        </svg>
-                                    </a>
-                                    <button title="Editar el cliente" wire:click="editar({{ $cliente->id }})"
-                                        class="py-1 px-2 text-orange-600 rounded-lg focus:outline-none focus:shadow-outline-gray hover:border hover:border-orange-600 border border-transparent"
-                                        aria-label="Editar">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="currentColor" class="size-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                                        </svg>
-                                    </button>
-                                    @if (Auth::user()->role->nombre == 'Administrador')
-                                        <button title="Eliminar el cliente"
-                                            wire:click="modalEliminar({{ $cliente->id }})"
-                                            class="py-1 px-2 text-rose-600 rounded-lg focus:outline-none focus:shadow-outline-gray hover:border hover:border-rose-600 border border-transparent"
-                                            aria-label="Eliminar">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                class="size-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                            </svg>
-                                        </button>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
+            {{-- Filters --}}
+            <div class="flex items-center gap-2 flex-wrap">
+                <select wire:model.live="tipoClienteId" class="form-select-base py-2 text-sm pr-8">
+                    <option value="">Todos los tipos</option>
+                    @foreach ($tipoClientes as $tipo)
+                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
                     @endforeach
-                </tbody>
-            </table>
-        </div>
+                </select>
 
-        <!-- Paginación -->
-        {{ $clientes->links('livewire::custom-pagination') }}
-    </div>
+                <select wire:model.live="estado" class="form-select-base py-2 text-sm pr-8">
+                    <option value="">Todos los estados</option>
+                    <option value="1">Activos</option>
+                    <option value="0">Inactivos</option>
+                </select>
 
-    <!-- Modal de eliminar -->
+                <select wire:model.live="perPage" class="form-select-base py-2 text-sm w-20">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="25">25</option>
+                </select>
+            </div>
+        </x-slot>
+
+        {{-- ── Rows ────────────────────────────────────────────────── --}}
+        @forelse ($clientes as $cliente)
+            <tr class="table-row">
+                {{-- # --}}
+                <td class="table-cell text-center num text-slate-500 dark:text-slate-400 font-semibold">
+                    {{ $loop->iteration }}
+                </td>
+
+                {{-- Cliente --}}
+                <td class="table-cell text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="avatar bg-primary-600 shrink-0">
+                            {{ strtoupper(substr($cliente->nombres, 0, 1)) }}
+                        </span>
+                        <div class="min-w-0">
+                            <p class="font-semibold text-slate-800 dark:text-slate-200 truncate">
+                                {{ $cliente->nombres }} {{ $cliente->apellidos }}
+                            </p>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 truncate">
+                                {{ $cliente->email ?: $cliente->direccion }}
+                            </p>
+                        </div>
+                    </div>
+                </td>
+
+                {{-- DPI --}}
+                <td class="table-cell text-center num">{{ $cliente->dpi }}</td>
+
+                {{-- NIT --}}
+                <td class="table-cell text-center num">{{ $cliente->nit }}</td>
+
+                {{-- Tipo --}}
+                <td class="table-cell text-center">
+                    <span class="badge-primary">
+                        {{ $cliente->tipoCliente->nombre }}
+                    </span>
+                </td>
+
+                {{-- Estado --}}
+                <td class="table-cell text-center">
+                    <x-status-badge :status="$cliente->estado" :clickable="true" :wire-click="'cambiarEstado(' . $cliente->id . ')'" />
+                </td>
+
+                {{-- Acciones --}}
+                <td class="table-cell text-center">
+                    <div class="flex justify-center items-center gap-1">
+                        <a href="{{ route('clientes.mostrar', $cliente->id) }}" wire:navigate class="btn-action-view"
+                            title="Ver cliente" aria-label="Ver cliente">
+                            <x-heroicon-o-eye class="w-4 h-4" />
+                        </a>
+
+                        <button wire:click="editar({{ $cliente->id }})" class="btn-action-edit" title="Editar cliente"
+                            aria-label="Editar cliente">
+                            <x-heroicon-o-pencil-square class="w-4 h-4" />
+                        </button>
+
+                        @if (Auth::user()->role->nombre === 'Administrador')
+                            <button wire:click="modalEliminar({{ $cliente->id }})" class="btn-action-delete"
+                                title="Eliminar cliente" aria-label="Eliminar cliente">
+                                <x-heroicon-o-trash class="w-4 h-4" />
+                            </button>
+                        @endif
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="7" class="py-16">
+                    <div class="empty-state">
+                        <x-heroicon-o-users class="w-10 h-10" />
+                        <p class="font-medium text-slate-500 dark:text-slate-400">No hay clientes registrados</p>
+                        <p class="text-xs mt-1">Agrega el primer cliente con el botón de arriba.</p>
+                    </div>
+                </td>
+            </tr>
+        @endforelse
+
+        {{-- ── Pagination ──────────────────────────────────────────── --}}
+        <x-slot name="pagination">
+            {{ $clientes->links('livewire::custom-pagination') }}
+        </x-slot>
+
+    </x-data-table>
+
+    {{-- ── Modal: confirmar eliminación ──────────────────────────── --}}
     @if ($abrirModal)
-        <div
-            class="fixed inset-0 z-30 flex items-center bg-black bg-opacity-50 sm:items-center sm:justify-center transition ease-out duration-150">
-            <div class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg px-6 py-4 max-w-md m-2">
-                <!-- Header -->
-                <header class="flex justify-between px-6 py-3">
-                    <p class="text-xl font-semibold text-rose-600 dark:text-rose-400">Eliminar Cliente No.
-                        {{ $clienteId }}</p>
-                    <button
-                        class="inline-flex items-center justify-center w-6 h-6 text-gray-400 transition-colors duration-150 rounded dark:hover:text-gray-200 hover:text-gray-700  hover:border"
-                        wire:click="cerrarModal" aria-label="close">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
+        <div class="modal-backdrop fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" x-data
+            x-on:keydown.escape.window="$wire.cerrarModal()">
+            <div
+                class="modal-panel w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+
+                {{-- Header --}}
+                <div
+                    class="flex items-start justify-between px-5 pt-5 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+                            Eliminar cliente
+                        </h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                            Esta acción no se puede deshacer.
+                        </p>
+                    </div>
+                    <button wire:click="cerrarModal"
+                        class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        aria-label="Cerrar">
+                        <x-heroicon-o-x-mark class="w-5 h-5" />
                     </button>
-                </header>
+                </div>
 
-                <hr class="border-gray-200 dark:border-gray-700">
-
-                <!-- Contenido -->
-                <div class="px-6 py-4">
-                    <p class="text-gray-800 dark:text-white">
-                        ¿Estás seguro de que deseas eliminar al cliente: <span
-                            class="font-semibold text-rose-600 dark:text-rose-400">
-                            {{ $nombres }}
-                            {{ $apellidos }}</span>?
+                {{-- Body --}}
+                <div class="px-5 py-4 space-y-4">
+                    <p class="text-sm text-slate-700 dark:text-slate-300">
+                        ¿Confirmas eliminar a
+                        <span class="font-semibold text-rose-600 dark:text-rose-400">
+                            {{ $nombres }} {{ $apellidos }}
+                        </span>?
+                        Ingresa tu contraseña para continuar.
                     </p>
 
-                    <!-- Formulario -->
-                    <form wire:submit.prevent="eliminar" class="px-4 py-2">
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Por favor ingresa tu contraseña para confirmar la eliminación.
-                        </p>
-
-                        <!-- Contraseña -->
-                        <div class="mt-2">
-                            <x-input-label for="password" :value="__('Contraseña')" class="sr-only" />
-                            <x-text-input wire:model="password" id="password"
-                                class="block w-full mt-1 px-3 py-1 {{ $errors->has('password') ? 'border-red-600 focus:border-red-400  dark:border-red-400' : '' }}"
-                                type="password" name="password" wire:keydown="clearError('password')"
-                                placeholder="Contraseña" />
-                            @error('password')
-                                <span class="text-sm text-red-600 dark:text-red-400">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
-
-                        <!-- Botones -->
-                        <div
-                            class="flex flex-col items-center justify-end px-6 py-3 -mx-6 -mb-4 space-y-4 sm:space-y-0 sm:space-x-6 sm:flex-row">
-                            <button wire:click="cerrarModal" type="button"
-                                class="w-full px-5 py-3 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-gray-400 sm:px-4 sm:py-2 sm:w-auto active:bg-transparent hover:border-rose-500 focus:border-rose-500 active:text-gray-500 focus:outline-none">
-                                Cancelar
-                            </button>
-                            <button type="submit"
-                                class="w-full px-5 py-3 text-sm font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg sm:w-auto sm:px-4 sm:py-2  focus:outline-none bg-rose-600 active:bg-rose-600 hover:bg-rose-700">
-                                Eliminar
-                            </button>
-                        </div>
-                    </form>
+                    <x-ui.form-field label="Contraseña" for="password-modal" :error="$errors->first('password')">
+                        <input wire:model="password" id="password-modal" type="password"
+                            class="form-input-base py-2 px-3 {{ $errors->has('password') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            placeholder="Tu contraseña" wire:keydown="clearError('password')"
+                            autocomplete="current-password" />
+                    </x-ui.form-field>
                 </div>
+
+                {{-- Footer --}}
+                <div class="flex justify-end gap-2 px-5 pb-5">
+                    <button wire:click="cerrarModal" type="button" class="btn-secondary">
+                        Cancelar
+                    </button>
+                    <button wire:click="eliminar" type="button" class="btn-danger" wire:loading.attr="disabled">
+                        <x-heroicon-o-trash class="w-4 h-4" />
+                        <span wire:loading.remove wire:target="eliminar">Eliminar</span>
+                        <span wire:loading wire:target="eliminar">Eliminando…</span>
+                    </button>
+                </div>
+
             </div>
+        </div>
     @endif
+
 </div>

@@ -9,7 +9,7 @@ use App\Models\User;
 class TarjetaUsuarios extends Component
 {
     // Variables
-    public $usuarios, $roles, $verUsuarios = false;
+    public $usuarios, $roles, $verUsuarios = false, $roleId = null;
 
     // Eventos
     protected $listeners = ['verUsuarios'];
@@ -20,10 +20,8 @@ class TarjetaUsuarios extends Component
         // Buscar usuarios
         $usuarios = User::where('role_id', $roleId)->get();
 
-        // Asignar usuarios
+        $this->roleId = $roleId;
         $this->usuarios = $usuarios;
-
-        // Mostrar usuarios
         $this->verUsuarios = true;
     }
 

@@ -1,3 +1,9 @@
+/* ─── Fuentes variable (self-hosted, sin CDN externo) ─── */
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/jetbrains-mono";
+@import "../../vendor/livewire/flux/dist/flux.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,80 +13,96 @@
 
     /* Cards */
     .card {
-        @apply bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-card;
-    }
-    .card-hover {
-        @apply hover:shadow-card-hover hover:scale-[1.01] transition-all duration-200;
+        @apply bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-700 shadow-card;
     }
 
-    /* Buttons */
+    /* Buttons — primary ahora usa indigo, brand queda como accent */
     .btn {
-        @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-button border border-transparent transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-button border border-transparent transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
     }
+
     .btn-primary {
-        @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500;
+        @apply btn bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500;
     }
+
     .btn-secondary {
-        @apply btn bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-brand-500;
+        @apply btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 focus-visible:ring-primary-500;
     }
+
     .btn-danger {
-        @apply btn bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500;
+        @apply btn bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-500;
     }
+
     .btn-ghost {
-        @apply btn bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700;
+        @apply btn bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 focus-visible:ring-primary-500;
     }
 
     /* Status badges */
     .badge {
         @apply inline-flex items-center px-3 py-1 text-xs font-semibold rounded-badge;
     }
+
     .badge-active {
-        @apply badge bg-brand-100 dark:bg-brand-800 text-brand-700 dark:text-brand-100;
+        @apply badge bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300;
     }
+
     .badge-inactive {
-        @apply badge bg-rose-100 dark:bg-rose-800 text-rose-700 dark:text-rose-100;
+        @apply badge bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300;
     }
+
     .badge-pending {
-        @apply badge bg-amber-100 dark:bg-amber-800 text-amber-700 dark:text-amber-100;
+        @apply badge bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300;
     }
+
     .badge-info {
-        @apply badge bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-100;
+        @apply badge bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300;
+    }
+
+    .badge-primary {
+        @apply badge bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300;
     }
 
     /* Action icon buttons */
     .btn-action {
-        @apply p-1.5 rounded-lg border border-transparent transition-colors duration-150 focus:outline-none;
+        @apply p-1.5 rounded-lg border border-transparent transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60;
     }
+
     .btn-action-view {
         @apply btn-action text-purple-600 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20;
     }
+
     .btn-action-edit {
         @apply btn-action text-orange-600 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20;
     }
+
     .btn-action-delete {
         @apply btn-action text-rose-600 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20;
     }
 
     /* Form inputs */
     .form-input-base {
-        @apply block w-full rounded-button border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm text-sm focus:border-brand-500 focus:ring-brand-500 dark:focus:border-brand-400;
+        @apply block w-full rounded-button border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm text-sm focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-400;
     }
+
     .form-select-base {
         @apply form-input-base pr-8;
     }
 
     /* Table */
     .table-container {
-        @apply w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 shadow-card;
+        @apply w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 shadow-card;
     }
+
     .table-header {
-        @apply px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-800 border-b-2 border-gray-200 dark:border-gray-700 text-center;
+        @apply px-4 py-3 text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-800 border-b-2 border-slate-200 dark:border-slate-700 text-center;
     }
+
     .table-cell {
-        @apply px-4 py-3 text-sm text-gray-700 dark:text-gray-300;
+        @apply px-4 py-3 text-sm text-slate-700 dark:text-slate-300;
     }
+
     .table-row {
-        @apply hover:bg-brand-50/40 dark:hover:bg-brand-900/10 transition-colors duration-100;
+        @apply hover:bg-primary-50/40 dark:hover:bg-primary-900/10 transition-colors duration-100;
     }
 
     /* Toolbar */
@@ -88,20 +110,22 @@
         @apply flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4;
     }
 
-    /* Search input with icon */
+    /* Search input con icono */
     .search-wrap {
         @apply relative;
     }
+
     .search-wrap svg {
-        @apply absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none;
+        @apply absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none;
     }
+
     .search-wrap input {
         @apply form-input-base pl-9 py-2;
     }
 
     /* Section heading */
     .section-title {
-        @apply text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4;
+        @apply text-xl font-semibold text-slate-700 dark:text-slate-200 mb-4;
     }
 
     /* Avatar initials */
@@ -109,381 +133,79 @@
         @apply inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white shrink-0;
     }
 
+    .avatar-lg {
+        @apply w-14 h-14 text-xl;
+    }
+
     /* Empty state */
     .empty-state {
-        @apply flex flex-col items-center justify-center py-16 text-center text-gray-400 dark:text-gray-500;
+        @apply flex flex-col items-center justify-center py-16 text-center text-slate-400 dark:text-slate-500;
     }
+
     .empty-state svg {
         @apply w-14 h-14 mb-4 opacity-40;
     }
+
     .empty-state p {
         @apply text-sm;
     }
 
     /* Skeleton loading pulse */
     .skeleton {
-        @apply bg-gray-200 dark:bg-gray-700 animate-pulse rounded;
+        @apply bg-slate-200 dark:bg-slate-700 animate-pulse rounded;
+    }
+
+    /* Mono numérico — precios, DPI, NIT */
+    .num {
+        @apply font-mono tabular-nums;
+    }
+
+    /* Modal entrance animations */
+    .modal-backdrop {
+        animation: modal-fade-in 150ms ease-out both;
+    }
+
+    .modal-panel {
+        animation: modal-slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+}
+
+@keyframes modal-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes modal-slide-up {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
 
 @layer utilities {
     ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
     }
 
     ::-webkit-scrollbar-track {
-        background: #f1f1f1;
+        @apply bg-slate-100 dark:bg-slate-800;
     }
 
     ::-webkit-scrollbar-thumb {
-        background-color: #4a5568;
+        @apply bg-slate-400 dark:bg-slate-600 rounded-full;
         border: 2px solid transparent;
+        background-clip: content-box;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background-color: #2d3748;
-    }
-}
-
-.wheel-and-hamster {
-    --dur: 1s;
-    position: relative;
-    width: 12em;
-    height: 12em;
-    font-size: 14px;
-}
-
-.wheel,
-.hamster,
-.hamster div,
-.spoke {
-    position: absolute;
-}
-
-.wheel,
-.spoke {
-    border-radius: 50%;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.wheel {
-    background: radial-gradient(100% 100% at center, hsla(0, 0%, 60%, 0) 47.8%, hsl(0, 0%, 60%) 48%);
-    z-index: 2;
-}
-
-.hamster {
-    animation: hamster var(--dur) ease-in-out infinite;
-    top: 50%;
-    left: calc(50% - 3.5em);
-    width: 7em;
-    height: 3.75em;
-    transform: rotate(4deg) translate(-0.8em, 1.85em);
-    transform-origin: 50% 0;
-    z-index: 1;
-}
-
-.hamster__head {
-    animation: hamsterHead var(--dur) ease-in-out infinite;
-    background: hsl(30, 90%, 55%);
-    border-radius: 70% 30% 0 100% / 40% 25% 25% 60%;
-    box-shadow: 0 -0.25em 0 hsl(30, 90%, 80%) inset,
-        0.75em -1.55em 0 hsl(30, 90%, 90%) inset;
-    top: 0;
-    left: -2em;
-    width: 2.75em;
-    height: 2.5em;
-    transform-origin: 100% 50%;
-}
-
-.hamster__ear {
-    animation: hamsterEar var(--dur) ease-in-out infinite;
-    background: hsl(0, 90%, 85%);
-    border-radius: 50%;
-    box-shadow: -0.25em 0 hsl(30, 90%, 55%) inset;
-    top: -0.25em;
-    right: -0.25em;
-    width: 0.75em;
-    height: 0.75em;
-    transform-origin: 50% 75%;
-}
-
-.hamster__eye {
-    animation: hamsterEye var(--dur) linear infinite;
-    background-color: hsl(0, 0%, 0%);
-    border-radius: 50%;
-    top: 0.375em;
-    left: 1.25em;
-    width: 0.5em;
-    height: 0.5em;
-}
-
-.hamster__nose {
-    background: hsl(0, 90%, 75%);
-    border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%;
-    top: 0.75em;
-    left: 0;
-    width: 0.2em;
-    height: 0.25em;
-}
-
-.hamster__body {
-    animation: hamsterBody var(--dur) ease-in-out infinite;
-    background: hsl(30, 90%, 90%);
-    border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%;
-    box-shadow: 0.1em 0.75em 0 hsl(30, 90%, 55%) inset,
-        0.15em -0.5em 0 hsl(30, 90%, 80%) inset;
-    top: 0.25em;
-    left: 2em;
-    width: 4.5em;
-    height: 3em;
-    transform-origin: 17% 50%;
-    transform-style: preserve-3d;
-}
-
-.hamster__limb--fr,
-.hamster__limb--fl {
-    clip-path: polygon(0 0, 100% 0, 70% 80%, 60% 100%, 0% 100%, 40% 80%);
-    top: 2em;
-    left: 0.5em;
-    width: 1em;
-    height: 1.5em;
-    transform-origin: 50% 0;
-}
-
-.hamster__limb--fr {
-    animation: hamsterFRLimb var(--dur) linear infinite;
-    background: linear-gradient(hsl(30, 90%, 80%) 80%, hsl(0, 90%, 75%) 80%);
-    transform: rotate(15deg) translateZ(-1px);
-}
-
-.hamster__limb--fl {
-    animation: hamsterFLLimb var(--dur) linear infinite;
-    background: linear-gradient(hsl(30, 90%, 90%) 80%, hsl(0, 90%, 85%) 80%);
-    transform: rotate(15deg);
-}
-
-.hamster__limb--br,
-.hamster__limb--bl {
-    border-radius: 0.75em 0.75em 0 0;
-    clip-path: polygon(0 0, 100% 0, 100% 30%, 70% 90%, 70% 100%, 30% 100%, 40% 90%, 0% 30%);
-    top: 1em;
-    left: 2.8em;
-    width: 1.5em;
-    height: 2.5em;
-    transform-origin: 50% 30%;
-}
-
-.hamster__limb--br {
-    animation: hamsterBRLimb var(--dur) linear infinite;
-    background: linear-gradient(hsl(30, 90%, 80%) 90%, hsl(0, 90%, 75%) 90%);
-    transform: rotate(-25deg) translateZ(-1px);
-}
-
-.hamster__limb--bl {
-    animation: hamsterBLLimb var(--dur) linear infinite;
-    background: linear-gradient(hsl(30, 90%, 90%) 90%, hsl(0, 90%, 85%) 90%);
-    transform: rotate(-25deg);
-}
-
-.hamster__tail {
-    animation: hamsterTail var(--dur) linear infinite;
-    background: hsl(0, 90%, 85%);
-    border-radius: 0.25em 50% 50% 0.25em;
-    box-shadow: 0 -0.2em 0 hsl(0, 90%, 75%) inset;
-    top: 1.5em;
-    right: -0.5em;
-    width: 1em;
-    height: 0.5em;
-    transform: rotate(30deg) translateZ(-1px);
-    transform-origin: 0.25em 0.25em;
-}
-
-.spoke {
-    animation: spoke var(--dur) linear infinite;
-    background: radial-gradient(100% 100% at center, hsl(0, 0%, 60%) 4.8%, hsla(0, 0%, 60%, 0) 5%),
-        linear-gradient(hsla(0, 0%, 55%, 0) 46.9%, hsl(0, 0%, 65%) 47% 52.9%, hsla(0, 0%, 65%, 0) 53%) 50% 50% / 99% 99% no-repeat;
-}
-
-/* Animations */
-@keyframes hamster {
-
-    from,
-    to {
-        transform: rotate(4deg) translate(-0.8em, 1.85em);
-    }
-
-    50% {
-        transform: rotate(0) translate(-0.8em, 1.85em);
-    }
-}
-
-@keyframes hamsterHead {
-
-    from,
-    25%,
-    50%,
-    75%,
-    to {
-        transform: rotate(0);
-    }
-
-    12.5%,
-    37.5%,
-    62.5%,
-    87.5% {
-        transform: rotate(8deg);
-    }
-}
-
-@keyframes hamsterEye {
-
-    from,
-    90%,
-    to {
-        transform: scaleY(1);
-    }
-
-    95% {
-        transform: scaleY(0);
-    }
-}
-
-@keyframes hamsterEar {
-
-    from,
-    25%,
-    50%,
-    75%,
-    to {
-        transform: rotate(0);
-    }
-
-    12.5%,
-    37.5%,
-    62.5%,
-    87.5% {
-        transform: rotate(12deg);
-    }
-}
-
-@keyframes hamsterBody {
-
-    from,
-    25%,
-    50%,
-    75%,
-    to {
-        transform: rotate(0);
-    }
-
-    12.5%,
-    37.5%,
-    62.5%,
-    87.5% {
-        transform: rotate(-2deg);
-    }
-}
-
-@keyframes hamsterFRLimb {
-
-    from,
-    25%,
-    50%,
-    75%,
-    to {
-        transform: rotate(50deg) translateZ(-1px);
-    }
-
-    12.5%,
-    37.5%,
-    62.5%,
-    87.5% {
-        transform: rotate(-30deg) translateZ(-1px);
-    }
-}
-
-@keyframes hamsterFLLimb {
-
-    from,
-    25%,
-    50%,
-    75%,
-    to {
-        transform: rotate(-30deg);
-    }
-
-    12.5%,
-    37.5%,
-    62.5%,
-    87.5% {
-        transform: rotate(50deg);
-    }
-}
-
-@keyframes hamsterBRLimb {
-
-    from,
-    25%,
-    50%,
-    75%,
-    to {
-        transform: rotate(-60deg) translateZ(-1px);
-    }
-
-    12.5%,
-    37.5%,
-    62.5%,
-    87.5% {
-        transform: rotate(20deg) translateZ(-1px);
-    }
-}
-
-@keyframes hamsterBLLimb {
-
-    from,
-    25%,
-    50%,
-    75%,
-    to {
-        transform: rotate(20deg);
-    }
-
-    12.5%,
-    37.5%,
-    62.5%,
-    87.5% {
-        transform: rotate(-60deg);
-    }
-}
-
-@keyframes hamsterTail {
-
-    from,
-    25%,
-    50%,
-    75%,
-    to {
-        transform: rotate(30deg) translateZ(-1px);
-    }
-
-    12.5%,
-    37.5%,
-    62.5%,
-    87.5% {
-        transform: rotate(10deg) translateZ(-1px);
-    }
-}
-
-@keyframes spoke {
-    from {
-        transform: rotate(0);
-    }
-
-    to {
-        transform: rotate(-1turn);
+        @apply bg-slate-500 dark:bg-slate-500;
     }
 }

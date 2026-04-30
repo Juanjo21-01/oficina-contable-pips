@@ -14,7 +14,6 @@ class Tabla extends Component
     // Constructor
     public function mount()
     {
-        // Solo los administradores pueden acceder
         if (Auth::user()->role->nombre != 'Administrador') {
             abort(403);
         }
@@ -32,12 +31,9 @@ class Tabla extends Component
     // Ver usuarios de un rol
     public function verUsuarios($verUsuarios)
     {
-        // Solo los administradores pueden ver usuarios en cada rol
         if (Auth::user()->role->nombre !== 'Administrador') {
-            return toastr()->addError('¡No tienes permiso para ver los usuarios del rol!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: '¡No tienes permiso para ver los usuarios del rol!');
+            return;
         }
 
         $this->dispatch('verUsuarios', $verUsuarios);

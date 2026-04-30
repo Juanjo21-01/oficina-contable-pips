@@ -1,22 +1,15 @@
 <x-app-layout>
 
-    {{-- regresar --}}
-    <a href="{{ route('clientes.index') }}" wire:navigate
-        class="flex items-center text-gray-600 dark:text-gray-400 hover:underline m-3">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-        <span>Volver a la tabla de clientes</span>
-    </a>
+    <x-ui.page-header title="Detalle del cliente" description="Información completa, agencia virtual y trámites.">
+        <x-slot name="actions">
+            <flux:button :href="route('clientes.index')" variant="ghost" icon="arrow-left" wire:navigate>
+                Volver a clientes
+            </flux:button>
+        </x-slot>
+    </x-ui.page-header>
 
-    <h1 class="my-2 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-        Cliente No. {{ request()->route('id') }}
-    </h1>
-
-    <!-- Detalles -->
     <livewire:clientes.detalle :id="request()->route('id')" />
 
-    <!-- Modal -->
     <livewire:clientes.modal />
+
 </x-app-layout>

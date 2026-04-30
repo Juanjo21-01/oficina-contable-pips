@@ -19,7 +19,6 @@ class Tabla extends Component
     // Constructor
     public function mount()
     {
-        // Solo los administradores pueden acceder
         if (Auth::user()->role->nombre != 'Administrador') {
             abort(403);
         }
@@ -30,21 +29,16 @@ class Tabla extends Component
     // Abrir modal
     public function modalEliminar($usuarioId)
     {
-        // Solo los administradores pueden eliminar usuarios
         if (Auth::user()->role->nombre !== 'Administrador') {
-            return toastr()->addError('¡No tienes permiso para eliminar usuarios!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: '¡No tienes permiso para eliminar usuarios!');
+            return;
         }
 
         $this->password = '';
         $this->clearError('password');
 
-       // Buscar usuario
         $usuario = User::find($usuarioId);
 
-        // Asignar valores
         $this->nombres = $usuario->nombres;
         $this->apellidos = $usuario->apellidos;
 
@@ -68,71 +62,47 @@ class Tabla extends Component
     // Editar
     public function editar($usuarioId)
     {
-        // Solo los administradores pueden editar
         if (Auth::user()->role->nombre !== 'Administrador') {
-            return toastr()->addError('¡No tienes permiso para editar usuarios!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: '¡No tienes permiso para editar usuarios!');
+            return;
         }
-        
+
         $this->dispatch('editarUsuario', $usuarioId);
     }
-    
+
     // Eliminar
     public function eliminar()
     {
-         try {
-            // Validar contraseña
+        try {
             if (!Hash::check($this->password, Auth::user()->password)) {
                 $this->addError('password', 'La contraseña es incorrecta.');
                 return;
             }
 
-            // Buscar usuario
             $usuario = User::find($this->usuarioId);
 
-            // Verificar si el usuario tiene clientes
             if ($usuario->clientes->count() > 0) {
-                toastr()->addWarning('¡El usuario tiene clientes asociados!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'warning', message: '¡El usuario tiene clientes asociados!');
                 return;
             }
 
-            // Verificar si el usuario tiene tramites
             if ($usuario->tramites->count() > 0) {
-                toastr()->addWarning('¡El usuario tiene trámites asociados!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'warning', message: '¡El usuario tiene trámites asociados!');
                 return;
             }
 
-            // Eliminar usuario
             $usuario->delete();
 
-            // Cerrar la modal
             $this->abrirModal = false;
             $this->dispatch('usuarioEliminado');
-
-            // Mostrar mensaje
-            toastr()->addSuccess('¡Usuario eliminado!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
-       } catch (\Exception $e) {
-            $this->addError('password', 'Error al eliminar el cliente.'.$e->getMessage());
-            toastr()->addError('¡Error al eliminar el cliente!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
-       }
-        
+            $this->dispatch('toast', type: 'success', message: '¡Usuario eliminado!');
+        } catch (\Exception $e) {
+            $this->addError('password', 'Error al eliminar el usuario.'.$e->getMessage());
+            $this->dispatch('toast', type: 'error', message: '¡Error al eliminar el usuario!');
+        }
     }
 
-     // Limpiar errores
+    // Limpiar errores
     public function clearError($field)
     {
         $this->resetErrorBag($field);
@@ -141,27 +111,17 @@ class Tabla extends Component
     // Cambiar estado
     public function cambiarEstado($usuarioId)
     {
-        // Buscar usuario
         $usuario = User::find($usuarioId);
 
-        // Verificar si el usuario tiene el rol de administrador
         if ($usuario->role->nombre == 'Administrador') {
-            toastr()->addError('¡No puedes cambiar el estado de un administrador!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: '¡No puedes cambiar el estado de un administrador!');
             return;
         }
 
-        // Cambiar estado
         $usuario->estado = !$usuario->estado;
         $usuario->save();
 
-        // Mostrar mensaje
-        toastr()->addSuccess('¡Estado actualizado!', [
-            'positionClass' => 'toast-bottom-right',
-            'closeButton' => true,
-        ]);
+        $this->dispatch('toast', type: 'success', message: '¡Estado actualizado!');
     }
 
     public function render()

@@ -1,11 +1,14 @@
 <x-app-layout>
-    <h1 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-        Trámites
-    </h1>
 
-    <!-- Tabla -->
+    <x-ui.page-header title="Trámites" description="Gestión de trámites de la oficina contable.">
+        <x-slot name="actions">
+            <flux:button :href="route('tramites.crear')" variant="primary" icon="plus" wire:navigate>
+                Nuevo trámite
+            </flux:button>
+        </x-slot>
+    </x-ui.page-header>
+
     <livewire:tramites.tabla />
-
-    <!-- Modal Actualizar -->
     <livewire:tramites.modal />
+
 </x-app-layout>

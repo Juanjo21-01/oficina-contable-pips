@@ -26,7 +26,6 @@ class Formulario extends Component
             $this->cargarTramite($tramiteId);
         }
 
-        // Clientes activos
         $this->clientes = Cliente::where('estado', 1)->get();
         $this->tiposTramites = TipoTramite::all();
     }
@@ -44,7 +43,6 @@ class Formulario extends Component
         ]);
 
         try {
-            // Crear Tramite
             $tramite = Tramite::create([
                 'fecha' => $this->fecha,
                 'precio' => $this->precio,
@@ -55,28 +53,15 @@ class Formulario extends Component
                 'user_id' => auth()->user()->id
             ]);
 
-            // Asignar id
             $this->tramiteId = $tramite->id;
-
-            // Emitir evento
             $this->dispatch('tramiteGuardado');
 
-             // Mostrar mensaje
-            toastr()->addSuccess('Trámite guardado!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            session()->flash('success', '¡Trámite guardado!');
 
-            // Regresar a la lista
             return redirect()->route('tramites.index');
         } catch (\Exception $e) {
             $this->errorMessage = 'Error al guardar el trámite: '.$e->getMessage();
-
-            // Mostrar mensaje
-            toastr()->addError($this->errorMessage, [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: $this->errorMessage);
         }
     }
 

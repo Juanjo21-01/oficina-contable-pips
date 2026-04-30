@@ -1,22 +1,17 @@
 <x-app-layout>
 
-    {{-- regresar --}}
-    <a href="{{ route('tramites.index') }}" wire:navigate
-        class="flex items-center text-gray-600 dark:text-gray-400 hover:underline m-3">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-        <span>Volver a la tabla trámites</span>
-    </a>
+    <x-ui.page-header
+        :title="'Trámite No. ' . request()->route('id')"
+        description="Detalle completo del trámite.">
+        <x-slot name="actions">
+            <a href="{{ route('tramites.index') }}" wire:navigate class="btn-secondary">
+                <x-heroicon-o-arrow-left class="w-4 h-4" />
+                Volver a trámites
+            </a>
+        </x-slot>
+    </x-ui.page-header>
 
-    <h1 class="my-2 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-        Tramite No. {{ request()->route('id') }}
-    </h1>
-
-    <!-- Detalles del tramite -->
     <livewire:tramites.detalle :id="request()->route('id')" />
-
-    <!-- Modal -->
     <livewire:tramites.modal />
+
 </x-app-layout>

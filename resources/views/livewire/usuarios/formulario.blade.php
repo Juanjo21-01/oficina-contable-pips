@@ -1,92 +1,56 @@
 <div>
-    <form wire:submit.prevent="guardar">
+    <form wire:submit.prevent="guardar" id="usuario-form" autocomplete="off" class="space-y-4">
+
         @if ($errorMessage)
-            <div class="bg-red-500 text-white p-2 rounded mb-4 text-sm">{{ $errorMessage }}</div>
-        @endif
-
-        <!-- Nombres -->
-        <div class="mb-2">
-            <x-input-label for="nombres" :value="__('Nombres')" />
-            <x-text-input wire:model="nombres" id="nombres"
-                class="block w-full mt-1 px-3 py-1 {{ $errors->has('nombres') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                type="text" name="nombres" autofocus wire:keydown="clearError('nombres')" />
-            @error('nombres')
-                <span class="text-sm text-red-600 dark:text-red-400">
-                    {{ $message }}
-                </span>
-            @enderror
-        </div>
-
-        <!-- Apellidos -->
-        <div class="mb-2">
-            <x-input-label for="apellidos" :value="__('Apellidos')" />
-            <x-text-input wire:model="apellidos" id="apellidos"
-                class="block w-full mt-1 px-3 py-1 {{ $errors->has('apellidos') ? 'border-red-600 focus:border-red-400  dark:border-red-400' : '' }}"
-                type="text" name="apellidos" wire:keydown="clearError('apellidos')" />
-            @error('apellidos')
-                <span class="text-sm text-red-600 dark:text-red-400">
-                    {{ $message }}
-                </span>
-            @enderror
-        </div>
-
-        <!-- Email -->
-        <div class="mb-2">
-            <x-input-label for="email" :value="__('Correo Electrónico')" />
-            <x-text-input wire:model="email" id="email"
-                class="block w-full mt-1 px-3 py-1 {{ $errors->has('email') ? 'border-red-600 focus:border-red-400  dark:border-red-400' : '' }}"
-                type="email" name="email" wire:keydown="clearError('email')" />
-            @error('email')
-                <span class="text-sm text-red-600 dark:text-red-400">
-                    {{ $message }}
-                </span>
-            @enderror
-        </div>
-
-        @if ($roleId != 1)
-            <!-- Contraseña -->
-            <div class="mb-2">
-                <x-input-label for="password" :value="__('Contraseña')" />
-                <x-text-input wire:model="password" id="password"
-                    class="block w-full mt-1 px-3 py-1 {{ $errors->has('password') ? 'border-red-600 focus:border-red-400  dark:border-red-400' : '' }}"
-                    type="password" name="password" wire:keydown="clearError('password')" />
-                @error('password')
-                    <span class="text-sm text-red-600 dark:text-red-400">
-                        {{ $message }}
-                    </span>
-                @enderror
-            </div>
-
-            <!-- Rol -->
-            <div class="mb-2">
-                <x-input-label for="role_id" :value="__('Rol')" />
-                <select wire:model="roleId" id="role_id"
-                    class="block w-full mt-1 px-3 py-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-teal-400 dark:focus:border-teal-600 focus:outline-none focus:shadow-outline-teal rounded-md shadow-sm form-select {{ $errors->has('roleId') ? 'border-red-600 focus:border-red-400  dark:border-red-400' : '' }}"
-                    name="roleId" wire:click="clearError('roleId')">
-                    <option value="">Seleccione un rol</option>
-                    @foreach ($roles as $rol)
-                        <option value="{{ $rol->id }}">{{ $rol->nombre }}</option>
-                    @endforeach
-                </select>
-                @error('roleId')
-                    <span class="text-sm text-red-600 dark:text-red-400">
-                        {{ $message }}
-                    </span>
-                @enderror
+            <div class="flex items-center gap-2 px-4 py-3 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700 text-rose-700 dark:text-rose-300 text-sm">
+                <x-heroicon-o-exclamation-circle class="w-4 h-4 shrink-0" />
+                {{ $errorMessage }}
             </div>
         @endif
 
-        <!-- Botones -->
-        <div
-            class="flex flex-col items-center justify-end px-6 py-3 -mx-6 -mb-4 space-y-4 sm:space-y-0 sm:space-x-6 sm:flex-row">
-            <button wire:click="cerrarModal" type="button"
-                class="w-full px-5 py-3 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-gray-400 sm:px-4 sm:py-2 sm:w-auto active:bg-transparent hover:border-rose-500 focus:border-rose-500 active:text-gray-500 focus:outline-none">
-                Cancelar
-            </button>
-            <button type="submit"
-                class="w-full px-5 py-3 text-sm font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg sm:w-auto sm:px-4 sm:py-2  focus:outline-none {{ $usuarioId ? 'bg-amber-600 active:bg-amber-600 hover:bg-amber-700' : 'bg-teal-600 active:bg-teal-600 hover:bg-teal-700' }}">
-                {{ isset($usuarioId) ? 'Actualizar' : 'Guardar' }}
-            </button>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            <x-ui.form-field label="Nombres" for="usr-nombres" required :error="$errors->first('nombres')">
+                <input wire:model="nombres" id="usr-nombres" type="text"
+                    class="form-input-base py-2 px-3 {{ $errors->has('nombres') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                    wire:keydown="clearError('nombres')" autofocus />
+            </x-ui.form-field>
+
+            <x-ui.form-field label="Apellidos" for="usr-apellidos" required :error="$errors->first('apellidos')">
+                <input wire:model="apellidos" id="usr-apellidos" type="text"
+                    class="form-input-base py-2 px-3 {{ $errors->has('apellidos') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                    wire:keydown="clearError('apellidos')" />
+            </x-ui.form-field>
+
+            <x-ui.form-field label="Correo electrónico" for="usr-email" required :error="$errors->first('email')"
+                class="sm:col-span-2">
+                <input wire:model="email" id="usr-email" type="email"
+                    class="form-input-base py-2 px-3 {{ $errors->has('email') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                    wire:keydown="clearError('email')" />
+            </x-ui.form-field>
+
+            @if ($roleId != 1)
+                <x-ui.form-field label="Contraseña" for="usr-password"
+                    :helper="$usuarioId ? 'Dejar vacío para no cambiar' : null"
+                    :required="!$usuarioId"
+                    :error="$errors->first('password')">
+                    <input wire:model="password" id="usr-password" type="password"
+                        class="form-input-base py-2 px-3 {{ $errors->has('password') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                        wire:keydown="clearError('password')" />
+                </x-ui.form-field>
+
+                <x-ui.form-field label="Rol" for="usr-role" required :error="$errors->first('roleId')">
+                    <select wire:model="roleId" id="usr-role"
+                        class="form-select-base py-2 px-3 {{ $errors->has('roleId') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                        wire:change="clearError('roleId')">
+                        <option value="">Selecciona un rol…</option>
+                        @foreach ($roles as $rol)
+                            <option value="{{ $rol->id }}">{{ $rol->nombre }}</option>
+                        @endforeach
+                    </select>
+                </x-ui.form-field>
+            @endif
+
         </div>
     </form>
 </div>

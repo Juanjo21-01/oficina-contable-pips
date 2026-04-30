@@ -13,7 +13,7 @@ class Tabla extends Component
     public $filtrar, $reporte = [];
     public $fechaInicio, $fechaFin;
     public $tipoTramiteId, $clienteId;
-    public $totalTramites, $gastoTotal, $promedioGasto;
+    public $totalTramites = 0, $gastoTotal = 0, $promedioGasto = 0;
     
     // Paginación
     public $perPage = 10;
@@ -21,6 +21,20 @@ class Tabla extends Component
     public function mount($filtrar)
     {
         $this->filtrar = $filtrar;
+        $this->obtenerReportes();
+    }
+
+    public function cambiarFiltro($filtro)
+    {
+        $this->filtrar = $filtro;
+        $this->fechaInicio = null;
+        $this->fechaFin = null;
+        $this->tipoTramiteId = null;
+        $this->clienteId = null;
+        $this->totalTramites = 0;
+        $this->gastoTotal = 0;
+        $this->promedioGasto = 0;
+        $this->reporte = [];
         $this->obtenerReportes();
     }
 

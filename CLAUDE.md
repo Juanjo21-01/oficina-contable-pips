@@ -22,7 +22,7 @@ npm run build
 
 # Database
 php artisan migrate
-php artisan migrate:fresh --seed  # Reset and seed
+php artisan migrate:fresh --seed  # Reset and seed (creates Administrador/Empleado roles + admin user)
 
 # Tests
 ./vendor/bin/pest                 # Run all tests
@@ -36,64 +36,88 @@ On fresh install, `composer install` auto-generates `.env` from `.env.example`, 
 
 ## Architecture
 
-**Stack:** Laravel 11 + Livewire 3 + Volt + Tailwind CSS + SQLite (default) + DomPDF
+**Stack:** Laravel 11 + Livewire 3 + Volt + Tailwind CSS + SQLite (default) + DomPDF + Laravel Breeze (auth scaffolding)
 
 ### Routing & Controllers
 
 All routes in [`routes/web.php`](routes/web.php) require authentication. There are only two traditional controllers:
-- `DashboardController` — aggregates Chart.js data (client/case trends)
+- `DashboardController` — aggregates Chart.js data (client/case trends, current-month financials)
 - `PDFController` — generates receipts (`/tramites/pdf/{id}`) and reports (`/reportes/pdf/{tipo}`)
 
-Everything else is handled by **Livewire components**.
+Everything else uses view-based routing resolved by **Livewire/Volt components**.
 
-### Livewire Components (`app/Livewire/`)
+### Livewire Component Pattern
 
-Each resource has a dedicated Livewire class paired with a Blade view in `resources/views/livewire/`. Components handle CRUD, search/filter, and pagination inline (no separate API layer):
+Each resource module follows a consistent four-component structure:
 
-| Component | Resource |
-|-----------|----------|
-| `Clientes` | Client management |
-| `Tramites` | Case/procedure management |
-| `TipoClientes` | Client type categories |
-| `TipoTramites` | Case type categories |
-| `Usuarios` | User management |
-| `Roles` | Role management |
-| `Bitacora` | Audit log viewer (read-only) |
-| `Reportes` | Report generation UI |
+```
+app/Livewire/{Module}/
+  Tabla.php      — list view with search, filtering by estado, pagination, inline edit/delete
+  Formulario.php — create/edit form
+  Detalle.php    — read-only detail view
+  Modal.php      — modal wrapper
+```
+
+Modules: `Clientes`, `Tramites`, `TipoClientes`, `TipoTramites`, `Usuarios`, `Bitacora`, `Reportes`, `Roles`
+
+**Exceptions:**
+- `Bitacora` — no Formulario (read-only audit log)
+- `Reportes/Tabla.php` — handles semana/mes/rango filtering with optional cliente and tipo_tramite filters
+- `Roles/TarjetaUsuarios.php` — additional component showing users grouped by role
 
 ### Core Models & Relationships
 
 ```
-User (role_id) → Role
-Cliente (tipo_cliente_id, user_id) → TipoCliente, User
+Role
+  └── hasMany: User (role_id) — only two roles: "Administrador", "Empleado"
+
+User (role_id, estado)
+  ├── hasMany: Cliente
+  ├── hasMany: Tramite
+  └── hasMany: Bitacora
+
+TipoCliente
+  └── hasMany: Cliente
+
+Cliente (tipo_cliente_id, user_id, estado)  — unique: dpi, nit, email
+  ├── hasMany: Tramite
+  └── hasOne: AgenciaVirtual  — uses cliente_id as PK (not a separate id column)
+
+TipoTramite
   └── hasMany: Tramite
-  └── hasOne: AgenciaVirtual
-Tramite (cliente_id, tipo_tramite_id, user_id) → Cliente, TipoTramite, User
-Bitacora (user_id) → User
+
+Tramite (cliente_id, tipo_tramite_id, user_id, estado)
+  — tracks: fecha, precio (decimal), gastos (decimal), observaciones
+
+Bitacora (user_id)
+  — tipo enum: creacion | eliminacion | reporte
 ```
 
-**Tramite** is the central entity: tracks `fecha`, `estado`, `precio`, `gastos`, `observaciones`, and links a client to a case type.
+`AgenciaVirtual` stores virtual-office credentials (correo, password, observaciones) for a client — its primary key is `cliente_id` (unique per client, not auto-increment).
 
 ### Audit Logging
 
-Model Observers in `app/Observers/` automatically write to the `bitacoras` table on create/delete events. The `tipo` column is an enum: `creacion`, `eliminacion`, `reporte`.
+Model Observers in `app/Observers/` fire **only on `created` and `deleted`** (not `updated`). Registered in `AppServiceProvider`. The `Reportes` PDF generation also writes a `reporte` entry to `bitacoras`.
 
 ### PDF Generation
 
-`PDFController` uses `barryvdh/laravel-dompdf`. Templates are in `resources/views/pdf/`. Reports support weekly, monthly, and date-range filtering.
+`PDFController` uses `barryvdh/laravel-dompdf`. Templates in `resources/views/pdf/`. Reports support weekly, monthly, and date-range filtering with optional cliente/tipo_tramite filters; they calculate totalTramites, totalPrecio, totalGastos, gastoTotal, promedioGasto.
 
 ### Frontend
 
+- **Tailwind** with custom design tokens in [`tailwind.config.js`](tailwind.config.js):
+  - `brand` — primary teal palette (50–900)
+  - `surface` — card background variants (DEFAULT, muted, dark, dark-muted)
+  - `action` — semantic button colors: `view` (purple), `edit` (orange), `delete` (rose), `add` (brand-teal)
+  - `status` — `active` (brand), `inactive` (rose), `pending` (amber), `info` (blue)
+  - Custom border-radius (`card`, `badge`, `button`) and box-shadow (`card`, `card-hover`) tokens
 - **Toastr** (`yoeunes/toastr`) for flash notifications
-- **Chart.js** loaded in dashboard view for trend charts
-- Tailwind config in [`tailwind.config.js`](tailwind.config.js) with content paths for Livewire views
+- **Chart.js** loaded in dashboard view for 6-month trend charts
 
 ## Database
 
-SQLite by default (`.env` `DB_CONNECTION=sqlite`). Session, cache, and queue all use the `database` driver. To switch to MySQL, update `DB_CONNECTION`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` in `.env`.
-
-Key table constraints: `clientes.dpi` and `clientes.nit` are unique; `tramites` enforces FK on `cliente_id`, `tipo_tramite_id`, and `user_id` with cascade deletes.
+SQLite by default. Session, cache, and queue all use the `database` driver. Key constraints: `clientes.dpi`, `clientes.nit`, and `clientes.email` are unique; `tramites` enforces FKs with cascade deletes.
 
 ## HTTPS Enforcement
 
-Production forces HTTPS via `AppServiceProvider` (`URL::forceScheme('https')` behind an environment check). See the most recent commit for context.
+Production forces HTTPS via `AppServiceProvider` (`URL::forceScheme('https')` behind an environment check).

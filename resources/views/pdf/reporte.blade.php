@@ -1,256 +1,196 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $nombreArchivo }}</title>
     <style>
-        body {
+        @page {
+            size: A4 landscape;
+            margin: 1.2cm 2.0cm 2.0cm 2.0cm;
+        }
+        footer {
+            position: fixed;
+            bottom: -1.6cm;
+            left: 0;
+            right: 0;
+            height: 1.4cm;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 4px;
+            font-size: 9px;
+            color: #94a3b8;
             font-family: Arial, Helvetica, sans-serif;
-            color: #1F2937;
         }
+        .pagenum:before { content: "Página " counter(page) " de " counter(pages); }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 16px;
-            border: 1px solid #D1D5DB;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: #ffffff;
+        html, body {
+            margin: 0;
+            padding: 0;
+            padding-top: 8px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            color: #0f172a;
+            background: #fff;
         }
-
-        .header-table {
-            width: 100%;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 3px;
-        }
-
-        .header-table td {
-            vertical-align: middle;
-        }
-
-        .header-table img {
-            height: 96px;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .header-table h2 {
-            font-size: 24px;
-            font-weight: 700;
-            margin: 7px 0;
-            color: #1f2937;
-        }
-
-        .header-table p {
-            font-size: 14px;
-            margin: 3px 0;
-            color: #6c757d;
-        }
-
-        .section-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 8px;
-            color: #374151;
-        }
-
-        .section-content p {
-            font-size: 14px;
-            margin: 3px 0;
-            color: #4b5563;
-        }
-
-        .details-table {
-            width: 100%;
-            font-size: 14px;
-            border-collapse: collapse;
-        }
-
-        .details-table th,
-        .details-table td {
-            border: 1px solid #D1D5DB;
-            padding: 5px;
-            color: #4b5563;
-        }
-
-        .details-table th {
-            text-align: center;
-            padding-bottom: 8px;
-            color: #4b5563;
-        }
-
-        .details-table td {
-            font-size: 13px;
-        }
-
-        .details-table td:last-child {
-            text-align: right;
-        }
-
-        .details-table td:last-child {
-            text-align: right;
-        }
-
-        .card {
-            padding: 8px;
-            border: 1px solid #D1D5DB;
-            border-radius: 8px;
-            background-color: #f9fafb;
-            text-align: center;
-        }
-
-        .card h4 {
-            font-size: 14px;
-            font-weight: 700;
-            margin-top: 0;
-            margin-bottom: 4px;
-            color: #374151;
-        }
-
-        .card p {
-            font-size: 14px;
-            color: #DC1B46;
-        }
-
-        .card-container {
-            width: 33%;
-            padding: 8px;
-        }
-
-
-        /* No. */
-        .details-table th:nth-child(1),
-        .details-table td:nth-child(1) {
-            width: 5%;
-        }
-
-        /* Cliente */
-        .details-table th:nth-child(2),
-        .details-table td:nth-child(2) {
-            width: 20%;
-        }
-
-        /* Tipo de Trámite */
-        .details-table th:nth-child(3),
-        .details-table td:nth-child(3) {
-            width: 21%;
-        }
-
-        /* Fecha */
-        .details-table th:nth-child(4),
-        .details-table td:nth-child(4) {
-            width: 12%;
-        }
-
-        /* Precio */
-        .details-table th:nth-child(5),
-        .details-table td:nth-child(5) {
-            width: 14%;
-        }
-
-        /* Gastos */
-        .details-table th:nth-child(6),
-        .details-table td:nth-child(6) {
-            width: 14%;
-        }
-
-        /* Total */
-        .details-table th:nth-child(7),
-        .details-table td:nth-child(7) {
-            width: 14%;
-        }
+        .mono { font-family: "Courier New", Courier, monospace; }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <!-- Encabezado con Logo e Información de la Empresa -->
-        <table class="header-table">
-            <tr>
-                <td style="width: 20%;">
-                    <img src="{{ public_path('img/logo.png') }}" alt="Logo de la Empresa">
-                </td>
-                <td style="text-align: center; width: 80%;">
-                    <h2>Reporte de Trámites</h2>
-                    <p>Oficina Contable "Méndez García & Asociados"</p>
-                    <p>10 7° avenida 3-40, Zona 2, San Pedro Sacatepéquez San Marcos</p>
-                    <p>Teléfonos: 5861-2987 y 5611-6232</p>
-                    <p>Fecha: {{ date('d/m/Y') }}</p>
-                </td>
-            </tr>
-        </table>
 
-        <!-- Información del Reporte -->
-        <div class="section-content">
-            <h3 class="section-title">Resumen del Reporte</h3>
-            <table style="width: 100%; border-collapse: collapse;">
+<footer>
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td style="text-align:left;">Oficina Contable "Méndez García &amp; Asociados"</td>
+            <td style="text-align:center;">Generado el {{ date('d/m/Y') }} a las {{ date('H:i') }}</td>
+            <td style="text-align:right;"><span class="pagenum"></span></td>
+        </tr>
+    </table>
+</footer>
+
+{{-- ═══ ENCABEZADO ═══
+     Col logo: 110px | Col empresa: auto | Col meta: 270px
+--}}
+<table width="100%" cellpadding="0" cellspacing="0"
+       style="border-collapse:collapse; border-bottom:3px solid #4f46e5;">
+    <tr>
+        <td style="width:110px; vertical-align:middle; padding:0 10px 10px 0;">
+            <img src="{{ public_path('img/logo.png') }}" alt="Logo" style="height:60px; display:block;">
+        </td>
+        <td style="vertical-align:middle; text-align:center; padding:0 10px 10px;">
+            <div style="font-size:15px; font-weight:700; color:#312e81; margin-bottom:3px;">
+                Méndez García &amp; Asociados
+            </div>
+            <div style="font-size:10px; color:#64748b; margin:2px 0;">Oficina Contable Autorizada</div>
+            <div style="font-size:10px; color:#64748b; margin:2px 0;">10 7ª Avenida 3-40, Zona 2, San Pedro Sacatepéquez, San Marcos</div>
+            <div style="font-size:10px; color:#64748b; margin:2px 0;">Tel: 5861-2987 &nbsp;|&nbsp; 5611-6232</div>
+        </td>
+        <td style="width:270px; vertical-align:top; padding:0 0 10px 10px;">
+            <div style="background:#4f46e5; color:#fff; font-size:11px; font-weight:700;
+                        padding:5px 8px; border-radius:4px; margin-bottom:6px; text-align:center;">
+                REPORTE DE TRÁMITES
+            </div>
+            <table width="270" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
                 <tr>
-                    <td class="card-container">
-                        <div class="card">
-                            <h4>Total de Trámites</h4>
-                            <p>{{ $totalTramites }}</p>
-                        </div>
-                    </td>
-                    <td class="card-container">
-                        <div class="card">
-                            <h4>Remanente Total</h4>
-                            <p>Q. {{ number_format($gastoTotal, 2) }}</p>
-                        </div>
-                    </td>
-                    <td class="card-container">
-                        <div class="card">
-                            <h4>Promedio de Remanente</h4>
-                            <p>Q. {{ number_format($promedioGasto, 2) }}</p>
-                        </div>
+                    <td style="width:120px; font-size:10px; color:#64748b; padding:2px 0;">Archivo:</td>
+                    <td style="width:150px; font-size:10px; font-weight:600; text-align:right; padding:2px 0;">
+                        {{ $nombreArchivo }}
                     </td>
                 </tr>
+                <tr>
+                    <td style="font-size:10px; color:#64748b; padding:2px 0;">Fecha generación:</td>
+                    <td style="font-size:10px; font-weight:600; text-align:right; padding:2px 0;">{{ date('d/m/Y H:i') }}</td>
+                </tr>
+                <tr>
+                    <td style="font-size:10px; color:#64748b; padding:2px 0;">Total trámites:</td>
+                    <td style="font-size:10px; font-weight:600; text-align:right; padding:2px 0;" class="mono">{{ $totalTramites }}</td>
+                </tr>
             </table>
-        </div>
+        </td>
+    </tr>
+</table>
 
-        <!-- Tabla de Trámites -->
-        <div class="section-content">
-            <h3 class="section-title">Detalle de Trámites</h3>
-            <table class="details-table">
-                <thead>
-                    <tr style="border-bottom: 1px solid #E5E7EB;">
-                        <th>No.</th>
-                        <th>Cliente</th>
-                        <th>Tipo de Trámite</th>
-                        <th>Fecha</th>
-                        <th>Precio</th>
-                        <th>Gastos</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($tramites as $tramite)
-                        <tr>
-                            <td style="text-align: center;">{{ $loop->iteration }}</td>
-                            <td>{{ $tramite->cliente->nombres }}
-                                {{ $tramite->cliente->apellidos }}</td>
-                            <td>{{ $tramite->tipoTramite->nombre }}</td>
-                            <td>{{ date('d/m/Y', strtotime($tramite->fecha)) }}</td>
-                            <td style="text-align: right;">Q. {{ number_format($tramite->precio, 2) }}</td>
-                            <td style="text-align: right;">Q. {{ number_format($tramite->gastos, 2) }}</td>
-                            <td style="text-align: right;">Q.
-                                {{ number_format($tramite->precio - $tramite->gastos, 2) }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-                <tfoot style="font-weight: bold">
-                    <tr>
-                        <td colspan="4" style="text-align: center; width: 58%;">TOTALES</td>
-                        <td style="text-align: right; width: 14%;">Q. {{ number_format($totalPrecio, 2) }}</td>
-                        <td style="text-align: right; width: 14%;">Q. {{ number_format($totalGastos, 2) }}</td>
-                        <td style="text-align: right; width: 14%;">Q. {{ number_format($gastoTotal, 2) }}</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-    </div>
+{{-- ═══ KPIs ═══
+     5 celdas width:20% dentro tabla 100% — nunca desborda
+--}}
+<div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em;
+            color:#4f46e5; border-bottom:1px solid #e0e7ff; padding-bottom:3px;
+            margin-top:10px; margin-bottom:6px;">
+    Resumen del Período
+</div>
+<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+    <tr>
+        <td style="width:20%; vertical-align:top; padding-right:4px;">
+            <div style="border:1px solid #e0e7ff; border-top:3px solid #4f46e5;
+                        border-radius:4px; padding:8px 6px; background:#f8fafc; text-align:center;">
+                <div style="font-size:9px; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; font-weight:700; margin-bottom:4px;">Total Trámites</div>
+                <div style="font-size:15px; font-weight:700; color:#4338ca;">{{ $totalTramites }}</div>
+            </div>
+        </td>
+        <td style="width:20%; vertical-align:top; padding-right:4px;">
+            <div style="border:1px solid #e0e7ff; border-top:3px solid #4f46e5;
+                        border-radius:4px; padding:8px 6px; background:#f8fafc; text-align:center;">
+                <div style="font-size:9px; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; font-weight:700; margin-bottom:4px;">Ingresos Brutos</div>
+                <div style="font-size:15px; font-weight:700; color:#4338ca; font-family:'Courier New',Courier,monospace;">Q.&nbsp;{{ number_format($totalPrecio, 2) }}</div>
+            </div>
+        </td>
+        <td style="width:20%; vertical-align:top; padding-right:4px;">
+            <div style="border:1px solid #e0e7ff; border-top:3px solid #4f46e5;
+                        border-radius:4px; padding:8px 6px; background:#f8fafc; text-align:center;">
+                <div style="font-size:9px; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; font-weight:700; margin-bottom:4px;">Gastos Totales</div>
+                <div style="font-size:15px; font-weight:700; color:#4338ca; font-family:'Courier New',Courier,monospace;">Q.&nbsp;{{ number_format($totalGastos, 2) }}</div>
+            </div>
+        </td>
+        <td style="width:20%; vertical-align:top; padding-right:4px;">
+            <div style="border:1px solid #ccfbf1; border-top:3px solid #14b8a6;
+                        border-radius:4px; padding:8px 6px; background:#f8fafc; text-align:center;">
+                <div style="font-size:9px; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; font-weight:700; margin-bottom:4px;">Remanente Total</div>
+                <div style="font-size:15px; font-weight:700; color:#0f766e; font-family:'Courier New',Courier,monospace;">Q.&nbsp;{{ number_format($gastoTotal, 2) }}</div>
+            </div>
+        </td>
+        <td style="width:20%; vertical-align:top;">
+            <div style="border:1px solid #ccfbf1; border-top:3px solid #14b8a6;
+                        border-radius:4px; padding:8px 6px; background:#f8fafc; text-align:center;">
+                <div style="font-size:9px; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; font-weight:700; margin-bottom:4px;">Promedio Remanente</div>
+                <div style="font-size:15px; font-weight:700; color:#0f766e; font-family:'Courier New',Courier,monospace;">Q.&nbsp;{{ number_format($promedioGasto, 2) }}</div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+{{-- ═══ TABLA DETALLE ═══
+     Col 1: 36px | Col 2,3: auto | Col 4: 90px | Col 5,6: 110px | Col 7: 120px
+--}}
+<div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em;
+            color:#4f46e5; border-bottom:1px solid #e0e7ff; padding-bottom:3px;
+            margin-top:12px; margin-bottom:0;">
+    Detalle de Trámites
+</div>
+<table width="100%" cellpadding="0" cellspacing="0"
+       style="border-collapse:collapse; table-layout:fixed; font-size:11px;">
+    <colgroup>
+        <col style="width:36px;">
+        <col>
+        <col>
+        <col style="width:90px;">
+        <col style="width:110px;">
+        <col style="width:110px;">
+        <col style="width:120px;">
+    </colgroup>
+    <thead>
+        <tr style="background:#4f46e5;">
+            <th style="color:#fff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:6px 5px; text-align:center;">No.</th>
+            <th style="color:#fff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:6px 5px; text-align:left;">Cliente</th>
+            <th style="color:#fff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:6px 5px; text-align:left;">Tipo de Trámite</th>
+            <th style="color:#fff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:6px 5px; text-align:center;">Fecha</th>
+            <th style="color:#fff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:6px 5px; text-align:right;">Precio</th>
+            <th style="color:#fff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:6px 5px; text-align:right;">Gastos</th>
+            <th style="color:#fff; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:6px 5px; text-align:right;">Remanente</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($tramites as $tramite)
+        <tr style="background:{{ $loop->even ? '#f8fafc' : '#fff' }};">
+            <td style="padding:5px 5px; border-bottom:1px solid #e2e8f0; text-align:center; color:#1e293b; font-family:'Courier New',Courier,monospace;">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</td>
+            <td style="padding:5px 5px; border-bottom:1px solid #e2e8f0; color:#1e293b; overflow:hidden;">{{ $tramite->cliente->nombres }} {{ $tramite->cliente->apellidos }}</td>
+            <td style="padding:5px 5px; border-bottom:1px solid #e2e8f0; color:#1e293b; overflow:hidden;">{{ $tramite->tipoTramite->nombre }}</td>
+            <td style="padding:5px 5px; border-bottom:1px solid #e2e8f0; text-align:center; color:#1e293b;">{{ date('d/m/Y', strtotime($tramite->fecha)) }}</td>
+            <td style="padding:5px 5px; border-bottom:1px solid #e2e8f0; text-align:right; color:#1e293b; font-family:'Courier New',Courier,monospace;">Q.&nbsp;{{ number_format($tramite->precio, 2) }}</td>
+            <td style="padding:5px 5px; border-bottom:1px solid #e2e8f0; text-align:right; color:#1e293b; font-family:'Courier New',Courier,monospace;">Q.&nbsp;{{ number_format($tramite->gastos, 2) }}</td>
+            <td style="padding:5px 5px; border-bottom:1px solid #e2e8f0; text-align:right; font-family:'Courier New',Courier,monospace;
+                color:{{ ($tramite->precio - $tramite->gastos) >= 0 ? '#059669' : '#e11d48' }};">
+                Q.&nbsp;{{ number_format($tramite->precio - $tramite->gastos, 2) }}
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+    <tfoot>
+        <tr style="background:#eef2ff;">
+            <td colspan="4" style="padding:6px 5px; font-weight:700; color:#312e81; border-top:2px solid #4f46e5; text-align:center; font-size:10px; text-transform:uppercase; letter-spacing:0.05em;">Totales del Período</td>
+            <td style="padding:6px 5px; font-weight:700; color:#312e81; border-top:2px solid #4f46e5; text-align:right; font-family:'Courier New',Courier,monospace;">Q.&nbsp;{{ number_format($totalPrecio, 2) }}</td>
+            <td style="padding:6px 5px; font-weight:700; color:#312e81; border-top:2px solid #4f46e5; text-align:right; font-family:'Courier New',Courier,monospace;">Q.&nbsp;{{ number_format($totalGastos, 2) }}</td>
+            <td style="padding:6px 5px; font-weight:700; color:#059669; border-top:2px solid #4f46e5; text-align:right; font-family:'Courier New',Courier,monospace;">Q.&nbsp;{{ number_format($gastoTotal, 2) }}</td>
+        </tr>
+    </tfoot>
+</table>
+
 </body>
-
 </html>

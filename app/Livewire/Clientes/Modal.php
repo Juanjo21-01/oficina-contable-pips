@@ -72,23 +72,12 @@ class Modal extends Component
             // Emitir evento
             $this->dispatch('clienteGuardado');
 
-            // Mostrar mensaje
-            toastr()->addInfo('Cliente actualizado!', [
-                    'positionClass' => 'toast-bottom-right',
-                    'closeButton' => true,
-                ]);
-
-            // Cerrar modal
+            $this->dispatch('toast', type: 'info', message: '¡Cliente actualizado!');
             $this->show = false;
         }
         catch(\Exception $e){
-            $this->errorMessage = 'Error al guardar el cliente: '.$e->getMessage();
-
-            // Mostrar mensaje
-            toastr()->addError($this->errorMessage, [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->errorMessage = 'Error al guardar el cliente: ' . $e->getMessage();
+            $this->dispatch('toast', type: 'error', message: $this->errorMessage);
         }
     }
 

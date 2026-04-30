@@ -1,206 +1,232 @@
 <div>
-    @if (Auth::user()->role->nombre == 'Administrador')
-        <div class="p-6 space-y-8">
-            <!-- Tarjeta de perfil del usuario -->
-            <div
-                class="flex flex-col gap-4 p-6 bg-white dark:bg-gray-800 border rounded-lg shadow-md dark:border-gray-700">
-                <!-- Encabezado -->
+    @if (Auth::user()->role->nombre === 'Administrador')
+        <div class="space-y-5">
+
+            {{-- Profile card --}}
+            <x-ui.section>
+                <x-slot name="headerActions">
+                    <div class="flex items-center gap-2">
+                        <button wire:click="cambiarEstado({{ $usuario->id }})" @class([
+                            'btn-secondary text-sm',
+                            'opacity-50 cursor-not-allowed' =>
+                                $usuario->role->nombre === 'Administrador',
+                        ])
+                            @disabled($usuario->role->nombre === 'Administrador')>
+                            @if (!$usuario->estado)
+                                <x-heroicon-o-arrow-path class="w-4 h-4 text-brand-600" />
+                                Activar
+                            @else
+                                <x-heroicon-o-pause-circle class="w-4 h-4 text-amber-600" />
+                                Desactivar
+                            @endif
+                        </button>
+                        <button wire:click="editar({{ $usuario->id }})" class="btn-secondary text-sm">
+                            <x-heroicon-o-pencil class="w-4 h-4 text-orange-600" />
+                            Editar
+                        </button>
+                    </div>
+                </x-slot>
+
+                {{-- Header --}}
                 <div
-                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-center border-b pb-4 dark:border-gray-600">
-                    <h2 class="text-xl font-bold text-teal-600 dark:text-teal-400 mb-2 sm:mb-0">
-                        {{ $usuario->nombres }} {{ $usuario->apellidos }}
-                    </h2>
-                    <span class="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-                        {{ $usuario->email }}
-                    </span>
+                    class="flex flex-col sm:flex-row sm:items-center gap-4 pb-4 mb-4 border-b border-slate-100 dark:border-slate-700">
+                    @php
+                        $colors = ['bg-primary-500', 'bg-brand-500', 'bg-amber-500', 'bg-rose-500', 'bg-purple-500'];
+                        $color = $colors[$usuario->id % count($colors)];
+                    @endphp
+                    <div class="avatar avatar-lg {{ $color }} shrink-0">
+                        {{ strtoupper(substr($usuario->nombres, 0, 1)) }}
+                    </div>
+                    <div class="min-w-0">
+                        <h2 class="text-xl font-display font-semibold text-slate-900 dark:text-slate-100 truncate">
+                            {{ $usuario->nombres }} {{ $usuario->apellidos }}
+                        </h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{{ $usuario->email }}</p>
+                    </div>
                 </div>
 
-                <!-- Detalles -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {{-- Details --}}
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Rol</p>
-                        <p class="text-base font-semibold text-gray-800 dark:text-gray-200">
-                            {{ $usuario->role->nombre }}
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Rol
+                        </p>
+                        <div class="mt-1">
+                            @if ($usuario->role->nombre === 'Administrador')
+                                <span class="badge-primary">Administrador</span>
+                            @else
+                                <span class="badge-pending">Empleado</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            Estado</p>
+                        <div class="mt-1">
+                            @if ($usuario->estado)
+                                <span class="badge-active">Activo</span>
+                            @else
+                                <span class="badge-inactive">Inactivo</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            Registrado</p>
+                        <p class="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200 num">
+                            {{ $usuario->created_at->format('d/m/Y') }}
                         </p>
                     </div>
+                </div>
+            </x-ui.section>
 
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado</p>
-                        <p
-                            class="text-base font-semibold {{ $usuario->estado ? 'text-teal-500 dark:text-teal-400' : 'text-rose-500 dark:text-rose-400' }}">
-                            {{ $usuario->estado ? 'Activo' : 'Inactivo' }}
-                        </p>
+            @php
+                $usuarioChartOptions = [
+                    'plugins' => [
+                        'legend' => [
+                            'position' => 'top',
+                            'labels' => ['font' => ['size' => 12]],
+                        ],
+                    ],
+                    'scales' => [
+                        'y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]],
+                    ],
+                ];
+            @endphp
+
+            {{-- Chart --}}
+            <x-ui.section title="Estadísticas" description="Clientes y trámites de los últimos 6 meses">
+                <div class="relative h-72">
+                    <canvas id="usuarioChart" class="hidden sm:block w-full h-full"
+                        data-chart='@json($chartData)'
+                        data-chart-options='@json($usuarioChartOptions)'></canvas>
+                    <div
+                        class="flex sm:hidden items-center justify-center h-full text-sm text-slate-500 dark:text-slate-400">
+                        <x-heroicon-o-device-phone-mobile class="w-5 h-5 mr-2" />
+                        Amplía la ventana para ver la gráfica
                     </div>
                 </div>
+            </x-ui.section>
 
-                <!-- Botones -->
-                <div class="flex justify-end gap-2 pt-4 border-t dark:border-gray-600">
-                    <button wire:click="cambiarEstado({{ $usuario->id }})"
-                        class="px-4 py-2 text-sm font-medium leading-tight rounded-full {{ !$usuario->estado ? 'bg-teal-100 dark:bg-teal-700 text-teal-700 dark:text-teal-100 ' : 'bg-rose-100 dark:bg-rose-700 text-rose-700 dark:text-rose-100' }} {{ $usuario->role->nombre == 'Administrador' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer' }}">
-                        {{ !$usuario->estado ? 'Activar' : 'Desactivar' }}
-                    </button>
+            {{-- Recent clients --}}
+            <x-ui.section :padding="false">
+                <x-slot name="title">Últimos clientes registrados</x-slot>
+                <x-slot name="headerActions">
+                    <a href="{{ route('clientes.index') }}" wire:navigate
+                        class="text-sm text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
+                        Ver todos
+                        <x-heroicon-o-arrow-right class="w-4 h-4" />
+                    </a>
+                </x-slot>
 
-                    <button title="Editar el usuario" wire:click="editar({{ $usuario->id }})"
-                        class="px-4 py-2 text-sm font-medium text-orange-600 rounded-lg border border-transparent hover:border-orange-600 flex items-center gap-2">
-                        <span class="hidden sm:inline">Editar</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Espacio para estadísticas -->
-            <div class="bg-white rounded-lg shadow-md p-4 dark:bg-gray-800 border-2 dark:border-gray-700">
-                <h3 class="text-2xl font-semibold text-teal-600 dark:text-teal-400 mb-2">Estadísticas</h3>
-                <div class="w-full h-96 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                    <div class="w-full h-full items-center justify-center hidden sm:flex">
-                        <canvas id="myChart" class="w-full h-full "></canvas>
-                    </div>
-                    <span class=" text-gray-500 dark:text-gray-300 text-center inline sm:hidden">Por favor, amplía la
-                        ventana para ver la gráfica</span>
-                </div>
-            </div>
-
-            <!-- Tabla de Clientes Relacionados -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-2 dark:border-gray-700">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-semibold text-teal-600 dark:text-teal-400 p-2">Últimos Clientes
-                        <span class="hidden sm:inline">Registrados</span>
-
-                    </h3>
-                    {{-- boton para visitar la pagina de clientes --}}
-                    <div class="flex justify-end">
-                        <a href="{{ route('clientes.index') }}" wire:navigate
-                            class="flex items-center text-teal-600 dark:text-teal-400 hover:underline">
-                            <span>Ver todos los clientes</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                <div class="w-full overflow-hidden rounded-lg shadow-lg border mx-auto dark:border-gray-700 mb-4">
-                    <div class="w-full overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead>
-                                <tr
-                                    class="text-xs font-semibold tracking-widest text-center text-gray-500 uppercase border-b-2  dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                                    <th class="px-4 py-3 w-1/12">No.</th>
-                                    <th class="px-4 py-3 w-4/12">Nombres</th>
-                                    <th class="px-4 py-3 w-2/12">DPI</th>
-                                    <th class="px-4 py-3 w-3/12">Correo</th>
-                                    <th class="px-4 py-3 w-2/12">NIT</th>
+                <div class="w-full overflow-x-auto">
+                    <table class="w-full min-w-full table-auto whitespace-nowrap">
+                        <thead>
+                            <tr>
+                                <th class="table-header w-12">#</th>
+                                <th class="table-header">Nombre</th>
+                                <th class="table-header">DPI</th>
+                                <th class="table-header">Correo</th>
+                                <th class="table-header">NIT</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-700">
+                            @forelse ($usuario->clientes->sortByDesc('created_at')->take(5) as $cliente)
+                                <tr class="table-row">
+                                    <td class="table-cell text-center font-semibold text-slate-500 dark:text-slate-400">
+                                        {{ $loop->iteration }}
+                                    </td>
+                                    <td class="table-cell">
+                                        <p class="font-medium text-slate-800 dark:text-slate-200">
+                                            {{ $cliente->nombres }} {{ $cliente->apellidos }}
+                                        </p>
+                                        <p class="text-xs text-slate-400 dark:text-slate-500 truncate max-w-xs">
+                                            {{ $cliente->direccion }}
+                                        </p>
+                                    </td>
+                                    <td class="table-cell text-center num text-slate-600 dark:text-slate-400">
+                                        {{ $cliente->dpi }}</td>
+                                    <td class="table-cell text-center text-slate-600 dark:text-slate-400">
+                                        {{ $cliente->email }}</td>
+                                    <td class="table-cell text-center num text-slate-600 dark:text-slate-400">
+                                        {{ $cliente->nit }}</td>
                                 </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                @if ($usuario->clientes->isEmpty())
-                                    <tr class="text-gray-700 dark:text-gray-400 text-center">
-                                        <td class="px-4 py-3" colspan="5">No hay registros</td>
-                                    </tr>
-                                @endif
-                                @foreach ($usuario->clientes->sortByDesc('created_at')->take(5) as $cliente)
-                                    <tr class="text-gray-700 dark:text-gray-400 text-center">
-                                        <td class="px-4 py-3 w-1/12 font-semibold">{{ $loop->iteration }}</td>
-                                        <td class="px-4 py-3 w-4/12">
-                                            <p class="font-semibold">{{ $cliente->nombres }} {{ $cliente->apellidos }}
-                                            </p>
-                                            <p class="text-xs text-gray-600 dark:text-gray-400">
-                                                {{ $cliente->direccion }}
-                                            </p>
-                                        </td>
-                                        <td class="px-4 py-3 w-2/12">{{ $cliente->dpi }}</td>
-                                        <td class="px-4 py-3 w-3/12">{{ $cliente->email }}</td>
-                                        <td class="px-4 py-3 w-2/12">{{ $cliente->nit }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabla de Trámites Relacionados -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-2 dark:border-gray-700">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-semibold text-teal-600 dark:text-teal-400 p-2">Últimos Trámites
-                        <span class="hidden sm:inline">Realizados</span>
-                    </h3>
-                    {{-- boton para visitar la pagina de tramites --}}
-                    <div class="flex justify-end">
-                        <a href="{{ route('tramites.index') }}" wire:navigate
-                            class="flex items-center text-teal-600 dark:text-teal-400 hover:underline">
-                            <span>Ver todos los trámites</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                <div class="w-full overflow-hidden rounded-lg shadow-lg border mx-auto dark:border-gray-700 mb-4">
-                    <div class="w-full overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead>
-                                <tr
-                                    class="text-xs font-semibold tracking-widest text-center text-gray-500 uppercase border-b-2  dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                                    <th class="px-4 py-3 w-1/12">No.</th>
-                                    <th class="px-4 py-3 w-4/12">Cliente</th>
-                                    <th class="px-4 py-3 w-3/12">Tipo de trámite</th>
-                                    <th class="px-4 py-3 w-2/12">Precio</th>
-                                    <th class="px-4 py-3 w-2/12">Fecha</th>
+                            @empty
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="empty-state py-8">
+                                            <x-heroicon-o-users />
+                                            <p>Sin clientes registrados</p>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                @if ($usuario->tramites->isEmpty())
-                                    <tr class="text-gray-700 dark:text-gray-400 text-center">
-                                        <td class="px-4 py-3" colspan="5">No hay registros</td>
-                                    </tr>
-                                @endif
-                                @foreach ($usuario->tramites->sortByDesc('created_at')->take(5) as $tramite)
-                                    <tr class="text-gray-700 dark:text-gray-400 text-center">
-                                        <td class="px-4 py-3 font-semibold w-1/12">{{ $loop->iteration }}</td>
-                                        <td class="px-4 py-3 w-4/12">{{ $tramite->cliente->nombres }}
-                                            {{ $tramite->cliente->apellidos }} </td>
-                                        <td class="px-4 py-3 w-3/12">{{ $tramite->tipoTramite->nombre }}</td>
-                                        <td class="px-4 py-3 w-2/12">Q. {{ $tramite->precio }}</td>
-                                        <td class="px-4 py-3 font-semibold w-2/12">
-                                            {{ date('d/m/Y', strtotime($tramite->fecha)) }}
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+            </x-ui.section>
+
+            {{-- Recent tramites --}}
+            <x-ui.section :padding="false">
+                <x-slot name="title">Últimos trámites realizados</x-slot>
+                <x-slot name="headerActions">
+                    <a href="{{ route('tramites.index') }}" wire:navigate
+                        class="text-sm text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
+                        Ver todos
+                        <x-heroicon-o-arrow-right class="w-4 h-4" />
+                    </a>
+                </x-slot>
+
+                <div class="w-full overflow-x-auto">
+                    <table class="w-full min-w-full table-auto whitespace-nowrap">
+                        <thead>
+                            <tr>
+                                <th class="table-header w-12">#</th>
+                                <th class="table-header">Cliente</th>
+                                <th class="table-header">Tipo de trámite</th>
+                                <th class="table-header w-28">Precio</th>
+                                <th class="table-header w-28">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-700">
+                            @forelse ($usuario->tramites->sortByDesc('created_at')->take(5) as $tramite)
+                                <tr class="table-row">
+                                    <td class="table-cell text-center font-semibold text-slate-500 dark:text-slate-400">
+                                        {{ $loop->iteration }}
+                                    </td>
+                                    <td class="table-cell font-medium text-slate-800 dark:text-slate-200">
+                                        {{ $tramite->cliente->nombres }} {{ $tramite->cliente->apellidos }}
+                                    </td>
+                                    <td class="table-cell text-slate-600 dark:text-slate-300">
+                                        {{ $tramite->tipoTramite->nombre }}
+                                    </td>
+                                    <td
+                                        class="table-cell text-center num font-semibold text-slate-800 dark:text-slate-200">
+                                        Q {{ number_format($tramite->precio, 2) }}
+                                    </td>
+                                    <td class="table-cell text-center num text-slate-500 dark:text-slate-400">
+                                        {{ date('d/m/Y', strtotime($tramite->fecha)) }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="empty-state py-8">
+                                            <x-heroicon-o-briefcase />
+                                            <p>Sin trámites realizados</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </x-ui.section>
+
+        </div>
+    @else
+        <div class="empty-state pt-24">
+            <x-heroicon-o-lock-closed />
+            <p class="font-medium text-slate-500 dark:text-slate-400">Acceso restringido</p>
         </div>
     @endif
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const ctx = document.getElementById('myChart').getContext('2d');
-            const chartData = @json($chartData);
-
-            new Chart(ctx, {
-                type: 'line',
-                data: chartData,
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Cantidad de Clientes y Trámites de los últimos 6 meses'
-                        }
-                    }
-                }
-            });
-        });
-    </script>
 </div>

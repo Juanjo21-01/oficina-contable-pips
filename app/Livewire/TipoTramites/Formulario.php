@@ -25,10 +25,8 @@ class Formulario extends Component
     // Cargar Tipo de Tramite
     public function cargarTipoTramite($tipoTramiteId)
     {
-        // Buscar TipoTramite
         $tipoTramite = TipoTramite::find($tipoTramiteId);
 
-        // Asignar valores
         $this->tipoTramiteId = $tipoTramite->id;
         $this->nombre = $tipoTramite->nombre;
     }
@@ -36,54 +34,28 @@ class Formulario extends Component
     // Guardar
     public function guardar()
     {
-        // Validar
         $this->validate([
             'nombre' => 'required|string|min:3|max:100|unique:tipo_tramites,nombre,' . $this->tipoTramiteId
         ]);
-        
-        try{
-            // Si se esta editando
+
+        try {
             if ($this->tipoTramiteId) {
-                // Buscar TipoTramite
                 $tipoTramite = TipoTramite::find($this->tipoTramiteId);
-                
-                // Guardar
                 $tipoTramite->nombre = $this->nombre;
                 $tipoTramite->save();
 
-                // Emitir evento
                 $this->dispatch('tipoTramiteGuardado');
-
-                 // Mostrar mensaje
-                toastr()->addInfo('Tipo de trámite actualizado!', [
-                    'positionClass' => 'toast-bottom-right',
-                    'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'info', message: '¡Tipo de trámite actualizado!');
             } else {
-                // Crear TipoTramite
-                TipoTramite::create([
-                    'nombre' => $this->nombre
-                ]);
+                TipoTramite::create(['nombre' => $this->nombre]);
 
-                // Emitir evento
                 $this->dispatch('tipoTramiteGuardado');
-
-                // Mostrar mensaje
-                toastr()->addSuccess('Tipo de trámite creado!', [
-                    'positionClass' => 'toast-bottom-right',
-                    'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'success', message: '¡Tipo de trámite creado!');
             }
-            // Cerrar modal
             $this->dispatch('cerrarModal');
         } catch (\Exception $e) {
             $this->errorMessage = 'Error al guardar el tipo de trámite: ' . $e->getMessage();
-
-            // Mostrar mensaje
-            toastr()->addError($this->errorMessage, [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: $this->errorMessage);
         }
     }
 
@@ -98,7 +70,6 @@ class Formulario extends Component
     {
         $this->dispatch('cerrarModal');
     }
-    
 
     public function render()
     {

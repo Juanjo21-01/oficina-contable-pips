@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx skills *)"
+      "Bash(npx skills *)",
+      "Bash(php artisan *)",
+      "Bash(npm run *)"
     ]
   }
 }

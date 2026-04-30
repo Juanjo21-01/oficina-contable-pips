@@ -1,245 +1,244 @@
-<div>
-    <form class="mb-16">
-        @if ($errorMessage)
-            <div class="bg-red-500 text-white p-2 rounded mb-4 text-sm">{{ $errorMessage }}</div>
-        @endif
+@php
+    $tabDefault = 'personal';
+    if (
+        $errors->hasAny(['correo', 'contrasenia', 'observaciones']) &&
+        !$errors->hasAny(['nombres', 'apellidos', 'dpi', 'nit', 'direccion', 'telefono', 'email', 'tipoClienteId'])
+    ) {
+        $tabDefault = 'agencia';
+    }
+@endphp
 
-        <!-- Tarjeta de Información Principal -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md pt-3 pb-4 px-6 mb-4 border-2 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-teal-600 dark:text-teal-400 mb-4 text-center">Información Principal
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Nombres -->
-                <div>
-                    <x-input-label for="nombres" :value="__('Nombres')" />
-                    <x-text-input wire:model="nombres" id="nombres"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('nombres') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="text" name="nombres" autofocus wire:keydown="clearError('nombres')" />
-                    @error('nombres')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
+<div x-data="{ tab: '{{ $tabDefault }}' }">
 
-                <!-- Apellidos -->
-                <div>
-                    <x-input-label for="apellidos" :value="__('Apellidos')" />
-                    <x-text-input wire:model="apellidos" id="apellidos"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('apellidos') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="text" name="apellidos" wire:keydown="clearError('apellidos')" />
-                    @error('apellidos')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
-
-                <!-- Dirección -->
-                <div>
-                    <x-input-label for="direccion" :value="__('Dirección')" />
-                    <x-text-input wire:model="direccion" id="direccion"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('direccion') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="text" name="direccion" wire:keydown="clearError('direccion')" />
-                    @error('direccion')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
-
-                <!-- Teléfono -->
-                <div>
-                    <x-input-label for="telefono" :value="__('Teléfono')" />
-                    <x-text-input wire:model="telefono" id="telefono"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('telefono') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="text" name="telefono" wire:keydown="clearError('telefono')" />
-                    @error('telefono')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
-            </div>
-        </div>
-
-        <!-- Tarjeta de Datos Fiscales -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md pt-3 pb-4 px-6 mb-4 border-2 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-teal-600 dark:text-teal-400 mb-4 text-center">Datos Fiscales</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- DPI -->
-                <div>
-                    <x-input-label for="dpi" :value="__('DPI')" />
-                    <x-text-input wire:model="dpi" id="dpi"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('dpi') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="text" name="dpi" wire:keydown="clearError('dpi')" />
-                    @error('dpi')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
-
-                <!-- NIT -->
-                <div>
-                    <x-input-label for="nit" :value="__('NIT')" />
-                    <x-text-input wire:model="nit" id="nit"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('nit') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="text" name="nit" wire:keydown="clearError('nit')" />
-                    @error('nit')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
-
-                <!-- Tipo de Cliente -->
-                <div>
-                    <x-input-label for="tipo_cliente_id" :value="__('Tipo de Cliente')" />
-                    <select wire:model="tipoClienteId" id="tipo_cliente_id"
-                        class="block w-full mt-1 px-3 py-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-teal-400 dark:focus:border-teal-600 focus:outline-none focus:shadow-outline-teal rounded-md shadow-sm form-select {{ $errors->has('tipoClienteId') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        name="tipoClienteId" wire:click="clearError('tipoClienteId')">
-                        <option value="">Seleccione un tipo de cliente</option>
-                        @foreach ($tipoClientes as $tipoCliente)
-                            <option value="{{ $tipoCliente->id }}">{{ $tipoCliente->nombre }}</option>
-                        @endforeach
-                    </select>
-                    @error('tipoClienteId')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
-
-                <!-- Email -->
-                <div>
-                    <x-input-label for="email" :value="__('Correo Electrónico')" />
-                    <x-text-input wire:model="email" id="email"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('email') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="email" name="email" wire:keydown="clearError('email')" />
-                    @error('email')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
-            </div>
-        </div>
-        <!-- Botones -->
+    {{-- ── Error global ──────────────────────────────────────────── --}}
+    @if ($errorMessage)
         <div
-            class="flex flex-col items-center text-center justify-center p-6 -mx-6 -mb-4 space-y-4 sm:space-y-0 sm:space-x-6 sm:flex-row">
-            <a type="button" href="{{ route('clientes.index') }}"
-                class="w-full px-5 py-3 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-gray-400 sm:px-8 sm:py-3 sm:w-auto active:bg-transparent hover:border-rose-500 focus:border-rose-500 active:text-gray-500 focus:outline-none">
-                Cancelar
-            </a>
-            <button type="button" wire:click="abrirAgencia"
-                class="w-full px-5 py-3 text-sm font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg sm:w-auto sm:px-8 sm:py-3 focus:outline-none bg-teal-600 active:bg-teal-600 hover:bg-teal-700">
-                Guardar
-            </button>
-        </div>
-    </form>
-
-    <!-- Modal para agregar  -->
-    @if ($abrirModalAgencia)
-        <div
-            class="fixed inset-0 z-30 flex items-center bg-black bg-opacity-50 sm:items-center sm:justify-center transition ease-out duration-150">
-            <div class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg px-6 py-4 max-w-md m-2">
-                <!-- Header -->
-                <header class="flex justify-between px-6 py-3">
-                    <p class="text-xl font-semibold text-teal-600 dark:text-teal-400">Agencia Virtual de:
-                        {{ $nombres }}</p>
-                    <button
-                        class="inline-flex items-center justify-center w-6 h-6 text-gray-400 transition-colors duration-150 rounded dark:hover:text-gray-200 hover:text-gray-700 hover:border"
-                        wire:click="cerrarModalAgencia" aria-label="close">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </header>
-
-                <hr class="border-gray-200 dark:border-gray-700">
-
-                <div class="px-6 py-4">
-                    <!-- Pregunta -->
-                    @if (!$mostrarFormularioAgencia)
-                        <p class="text-gray-800 dark:text-white text-center">
-                            ¿Deseas agregar la agencia virtual para este cliente o solo deseas crear el cliente?
-                        </p>
-
-                        <div
-                            class="flex flex-col items-center justify-center px-6 py-3 -mx-6 -mb-4 space-y-4 sm:space-y-0 sm:space-x-6 sm:flex-row">
-                            <!-- Solo Crear Cliente -->
-                            <button wire:click="guardar" type="button"
-                                class="w-full px-5 py-3 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-teal-400 sm:px-4 sm:py-2 sm:w-auto active:bg-transparent hover:border-teal-500 focus:border-teal-500 active:text-gray-500 focus:outline-none">
-                                Solo Crear Cliente
-                            </button>
-
-                            <!-- Agregar Agencia Virtual -->
-                            <button wire:click="abrirFormularioAgencia" type="button"
-                                class="w-full px-5 py-3 text-sm font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg sm:w-auto sm:px-4 sm:py-2 focus:outline-none bg-indigo-600 active:bg-indigo-600 hover:bg-indigo-700">
-                                Agregar Agencia
-                            </button>
-                        </div>
-                    @endif
-
-                    <!-- Formulario para agregar Agencia Virtual -->
-                    @if ($mostrarFormularioAgencia)
-                        <div class="mt-4">
-                            <form wire:submit.prevent="agregarAgenciaVirtual">
-
-                                <!-- Correo Electrónico -->
-                                <div class="mb-2">
-                                    <x-input-label for="correo" :value="__('Correo Electrónico')" />
-                                    <x-text-input wire:model="correo" id="correo"
-                                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('correo') ? 'border-red-600 focus:border-red-400  dark:border-red-400' : '' }}"
-                                        type="email" name="correo" autofocus
-                                        wire:keydown="clearError('correo')" />
-                                    @error('correo')
-                                        <span class="text-sm text-red-600 dark:text-red-400">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <!-- Contraseña -->
-                                <div class="mb-2">
-                                    <x-input-label for="contrasenia" :value="__('Contraseña')" />
-                                    <x-text-input wire:model="contrasenia" id="contrasenia"
-                                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('contrasenia') ? 'border-red-600 focus:border-red-400  dark:border-red-400' : '' }}"
-                                        type="password" name="contrasenia"
-                                        wire:keydown="clearError('contrasenia')" />
-                                    @error('contrasenia')
-                                        <span class="text-sm text-red-600 dark:text-red-400">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <!-- Observaciones -->
-                                <div class="mb-2">
-                                    <x-input-label for="observaciones" :value="__('Observaciones (Opcional)')" />
-                                    <textarea wire:model="observaciones" id="observaciones"
-                                        class="block w-full mt-1 px-3 py-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-teal-400 dark:focus:border-teal-600 focus:outline-none focus:shadow-outline-teal rounded-md shadow-sm form-textarea {{ $errors->has('observaciones') ? 'border-red-600 focus:border-red-400  dark:border-red-400' : '' }}"
-                                        name="observaciones" wire:keydown="clearError('observaciones')"></textarea>
-                                    @error('observaciones')
-                                        <span class="text-sm text-red-600 dark:text-red-400">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <!-- Botones del Formulario -->
-                                <div
-                                    class="flex flex-col items-center justify-center px-6 py-3 -mx-6 -mb-4 space-y-4 sm:space-y-0 sm:space-x-6 sm:flex-row">
-                                    <button wire:click="cerrarModalAgencia" type="button"
-                                        class="w-full px-5 py-3 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-gray-400 sm:px-4 sm:py-2 sm:w-auto active:bg-transparent hover:border-teal-500 focus:border-teal-500 active:text-gray-500 focus:outline-none">
-                                        Cancelar
-                                    </button>
-                                    <button type="submit"
-                                        class="w-full px-5 py-3 text-sm font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg sm:w-auto sm:px-4 sm:py-2 focus:outline-none bg-teal-600 active:bg-teal-600 hover:bg-teal-700">
-                                        Guardar Usuario y Agencia
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    @endif
-                </div>
-            </div>
+            class="flex items-center gap-2 px-4 py-3 mb-5 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700 text-rose-700 dark:text-rose-300 text-sm">
+            <x-heroicon-o-exclamation-circle class="w-4 h-4 shrink-0" />
+            {{ $errorMessage }}
         </div>
     @endif
+
+    {{-- ── Tab nav ────────────────────────────────────────────────── --}}
+    <div class="flex gap-1 mb-6 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+        <button type="button" @click="tab = 'personal'"
+            :class="tab === 'personal'
+                ?
+                'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' :
+                'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+            class="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-md transition-colors duration-150">
+            <x-heroicon-o-user class="w-4 h-4" />
+            <span>Datos personales</span>
+            @if ($errors->hasAny(['nombres', 'apellidos', 'dpi', 'nit', 'direccion', 'telefono', 'email', 'tipoClienteId']))
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            @endif
+        </button>
+        <button type="button" @click="tab = 'agencia'"
+            :class="tab === 'agencia'
+                ?
+                'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' :
+                'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+            class="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-md transition-colors duration-150">
+            <x-heroicon-o-building-office class="w-4 h-4" />
+            <span>Agencia virtual</span>
+            @if ($errors->hasAny(['correo', 'contrasenia']))
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            @endif
+        </button>
+        <button type="button" @click="tab = 'preferencias'"
+            :class="tab === 'preferencias'
+                ?
+                'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' :
+                'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+            class="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-md transition-colors duration-150">
+            <x-heroicon-o-cog-6-tooth class="w-4 h-4" />
+            <span>Preferencias</span>
+        </button>
+    </div>
+
+    <form wire:submit.prevent="guardar" autocomplete="off" class="space-y-5 mb-6">
+
+        {{-- ── Tab 1: Datos personales ─────────────────────────── --}}
+        <div x-show="tab === 'personal'" x-transition>
+            <x-ui.section title="Datos personales">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <x-ui.form-field label="Nombres" for="nombres" required :error="$errors->first('nombres')">
+                        <input wire:model="nombres" id="nombres" type="text"
+                            class="form-input-base py-2 px-3 {{ $errors->has('nombres') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:keydown="clearError('nombres')" autofocus />
+                    </x-ui.form-field>
+
+                    <x-ui.form-field label="Apellidos" for="apellidos" required :error="$errors->first('apellidos')">
+                        <input wire:model="apellidos" id="apellidos" type="text"
+                            class="form-input-base py-2 px-3 {{ $errors->has('apellidos') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:keydown="clearError('apellidos')" />
+                    </x-ui.form-field>
+
+                    <x-ui.form-field label="DPI" for="dpi" required helper="13 dígitos sin espacios"
+                        :error="$errors->first('dpi')">
+                        <input wire:model="dpi" id="dpi" type="text" maxlength="13"
+                            class="form-input-base py-2 px-3 num {{ $errors->has('dpi') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:keydown="clearError('dpi')" />
+                    </x-ui.form-field>
+
+                    <x-ui.form-field label="NIT" for="nit" required helper="Sin guión ni verificador"
+                        :error="$errors->first('nit')">
+                        <input wire:model="nit" id="nit" type="text" maxlength="13"
+                            class="form-input-base py-2 px-3 num {{ $errors->has('nit') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:keydown="clearError('nit')" />
+                    </x-ui.form-field>
+
+                    <x-ui.form-field label="Teléfono" for="telefono" required :error="$errors->first('telefono')">
+                        <input wire:model="telefono" id="telefono" type="text" maxlength="8"
+                            class="form-input-base py-2 px-3 num {{ $errors->has('telefono') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:keydown="clearError('telefono')" />
+                    </x-ui.form-field>
+
+                    <x-ui.form-field label="Correo electrónico" for="email" helper="Opcional" :error="$errors->first('email')">
+                        <input wire:model="email" id="email" type="email"
+                            class="form-input-base py-2 px-3 {{ $errors->has('email') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:keydown="clearError('email')" />
+                    </x-ui.form-field>
+
+                    <x-ui.form-field label="Tipo de cliente" for="tipo_cliente_id" required :error="$errors->first('tipoClienteId')">
+                        <select wire:model="tipoClienteId" id="tipo_cliente_id"
+                            class="form-select-base py-2 px-3 {{ $errors->has('tipoClienteId') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:change="clearError('tipoClienteId')">
+                            <option value="">Selecciona un tipo…</option>
+                            @foreach ($tipoClientes as $tipo)
+                                <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </x-ui.form-field>
+
+                    <x-ui.form-field label="Dirección" for="direccion" required :error="$errors->first('direccion')">
+                        <input wire:model="direccion" id="direccion" type="text"
+                            class="form-input-base py-2 px-3 {{ $errors->has('direccion') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:keydown="clearError('direccion')" />
+                    </x-ui.form-field>
+
+                </div>
+            </x-ui.section>
+
+            {{-- Next → --}}
+            <div class="flex justify-end mt-4">
+                <button type="button" @click="tab = 'agencia'" class="btn-secondary">
+                    Siguiente: Agencia virtual
+                    <x-heroicon-o-arrow-right class="w-4 h-4" />
+                </button>
+            </div>
+        </div>
+
+        {{-- ── Tab 2: Agencia virtual ──────────────────────────── --}}
+        <div x-show="tab === 'agencia'" x-transition>
+            <x-ui.section title="Agencia virtual"
+                description="Opcional — déjalo vacío si el cliente aún no tiene acceso.">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <x-ui.form-field label="Correo de la agencia" for="correo"
+                        helper="Requerido si se añade agencia" :error="$errors->first('correo')">
+                        <input wire:model="correo" id="correo" type="email"
+                            class="form-input-base py-2 px-3 {{ $errors->has('correo') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:keydown="clearError('correo')" />
+                    </x-ui.form-field>
+
+                    <x-ui.form-field label="Contraseña" for="contrasenia" helper="Mínimo 8 caracteres"
+                        :error="$errors->first('contrasenia')">
+                        <div x-data="{ show: false }" class="relative">
+                            <input wire:model="contrasenia" id="contrasenia" :type="show ? 'text' : 'password'"
+                                class="form-input-base py-2 pl-3 pr-10 {{ $errors->has('contrasenia') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:keydown="clearError('contrasenia')" />
+                            <button type="button" @click="show = !show"
+                                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                :aria-label="show ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                                <template x-if="!show"><x-heroicon-o-eye class="w-4 h-4" /></template>
+                                <template x-if="show"><x-heroicon-o-eye-slash class="w-4 h-4" /></template>
+                            </button>
+                        </div>
+                    </x-ui.form-field>
+
+                    <div class="sm:col-span-2">
+                        <x-ui.form-field label="Observaciones" for="observaciones" helper="Opcional"
+                            :error="$errors->first('observaciones')">
+                            <textarea wire:model="observaciones" id="observaciones" rows="3"
+                                class="form-input-base py-2 px-3 {{ $errors->has('observaciones') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:keydown="clearError('observaciones')"></textarea>
+                        </x-ui.form-field>
+                    </div>
+
+                </div>
+            </x-ui.section>
+
+            <div class="flex justify-between mt-4">
+                <button type="button" @click="tab = 'personal'" class="btn-secondary">
+                    <x-heroicon-o-arrow-left class="w-4 h-4" />
+                    Anterior
+                </button>
+                <button type="button" @click="tab = 'preferencias'" class="btn-secondary">
+                    Siguiente: Preferencias
+                    <x-heroicon-o-arrow-right class="w-4 h-4" />
+                </button>
+            </div>
+        </div>
+
+        {{-- ── Tab 3: Preferencias ─────────────────────────────── --}}
+        <div x-show="tab === 'preferencias'" x-transition>
+            <x-ui.section title="Preferencias" description="Configura el estado inicial del cliente.">
+                <div class="space-y-4">
+
+                    <div
+                        class="flex items-center justify-between py-3 px-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                        <div>
+                            <p class="text-sm font-medium text-slate-800 dark:text-slate-200">Cliente activo</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                Los clientes inactivos no aparecen en filtros por defecto.
+                            </p>
+                        </div>
+                        <button type="button" wire:click="$set('estado', !{{ $estado ? 'true' : 'false' }})"
+                            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 {{ $estado ? 'bg-primary-600' : 'bg-slate-300 dark:bg-slate-600' }}"
+                            role="switch" :aria-checked="{{ $estado ? 'true' : 'false' }}"
+                            aria-label="Estado del cliente">
+                            <span
+                                class="pointer-events-none inline-block h-5 w-5 translate-x-0 rounded-full bg-white shadow ring-0 transition duration-200 {{ $estado ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                        </button>
+                    </div>
+
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Estado actual:
+                        <span
+                            class="font-semibold {{ $estado ? 'text-brand-600 dark:text-brand-400' : 'text-rose-600 dark:text-rose-400' }}">
+                            {{ $estado ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </p>
+
+                </div>
+            </x-ui.section>
+
+            <div class="flex justify-between mt-4">
+                <button type="button" @click="tab = 'agencia'" class="btn-secondary">
+                    <x-heroicon-o-arrow-left class="w-4 h-4" />
+                    Anterior
+                </button>
+                {{-- Submit final --}}
+                <flux:button type="submit" variant="primary" wire:loading.attr="disabled">
+                    <x-heroicon-o-check class="w-4 h-4" />
+                    <span wire:loading.remove wire:target="guardar">Guardar cliente</span>
+                    <span wire:loading wire:target="guardar">Guardando…</span>
+                </flux:button>
+            </div>
+        </div>
+
+        {{-- ── Submit visible en tabs 1 y 2 también ───────────── --}}
+        <div x-show="tab !== 'preferencias'"
+            class="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+            <flux:button type="submit" variant="primary" wire:loading.attr="disabled">
+                <x-heroicon-o-check class="w-4 h-4" />
+                <span wire:loading.remove wire:target="guardar">Guardar cliente</span>
+                <span wire:loading wire:target="guardar">Guardando…</span>
+            </flux:button>
+        </div>
+
+    </form>
+
 </div>

@@ -23,13 +23,8 @@ class Modal extends Component
     {
         $this->limpiarModal();
 
-        $this->tramiteId = $tramiteId;
-        $this->show = true;
-
-        // Buscar tramite
         $tramite = Tramite::find($tramiteId);
 
-        // Asignar valores
         $this->tramiteId = $tramite->id;
         $this->fecha = $tramite->fecha;
         $this->precio = $tramite->precio;
@@ -37,6 +32,7 @@ class Modal extends Component
         $this->observaciones = $tramite->observaciones;
         $this->tipoTramiteId = $tramite->tipo_tramite_id;
         $this->clienteId = $tramite->cliente_id;
+        $this->show = true;
     }
 
     // Actualizar tramite
@@ -50,9 +46,8 @@ class Modal extends Component
             'tipoTramiteId' => 'required|int|exists:tipo_tramites,id',
             'clienteId' => 'required|int|exists:clientes,id'
         ]);
-        
-        try{
-            // Actualizar tramite
+
+        try {
             $tramite = Tramite::find($this->tramiteId);
             $tramite->fecha = $this->fecha;
             $tramite->precio = $this->precio;
@@ -62,25 +57,13 @@ class Modal extends Component
             $tramite->cliente_id = $this->clienteId;
             $tramite->save();
 
-            // Emitir evento para actualizar listado
             $this->dispatch('tramiteGuardado');
+            $this->dispatch('toast', type: 'info', message: '¡Trámite actualizado!');
 
-            // Mostrar mensaje
-            toastr()->addInfo('Trámite actualizado!', [
-                    'positionClass' => 'toast-bottom-right',
-                    'closeButton' => true,
-                ]);
-
-            // Cerrar modal
             $this->show = false;
         } catch (\Exception $e) {
             $this->errorMessage = 'Error al guardar el trámite: '.$e->getMessage();
-
-            // Mostrar mensaje
-            toastr()->addError($this->errorMessage, [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: $this->errorMessage);
         }
     }
 
@@ -108,7 +91,6 @@ class Modal extends Component
     public function render()
     {
         $tiposTramites = TipoTramite::all();
-        // clientes activos
         $clientes = Cliente::where('estado', 1)->get();
         return view('livewire.tramites.modal', [
             'tiposTramites' => $tiposTramites,

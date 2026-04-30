@@ -1,161 +1,112 @@
 <div>
-    <form wire:submit.prevent="guardar" class="mb-16">
+    <form wire:submit.prevent="guardar" autocomplete="off" class="space-y-5 mb-6">
+
+        {{-- Error global --}}
         @if ($errorMessage)
-            <div class="bg-red-500 text-white p-2 rounded mb-4 text-sm">{{ $errorMessage }}</div>
+            <div class="flex items-center gap-2 px-4 py-3 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700 text-rose-700 dark:text-rose-300 text-sm">
+                <x-heroicon-o-exclamation-circle class="w-4 h-4 shrink-0" />
+                {{ $errorMessage }}
+            </div>
         @endif
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-            <!-- Tarjeta de Datos del Cliente -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md py-4 px-6 border-2 dark:border-gray-700">
-                <h3 class="text-xl font-semibold text-teal-600 dark:text-teal-400 mb-4 text-center">Datos del
-                    Cliente
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {{-- Buscar cliente --}}
-                    <div>
-                        <x-input-label for="buscarCliente" :value="__('Buscar Cliente')" />
-                        <x-text-input wire:model.live.debounce.500ms="buscarCliente" id="buscarCliente"
-                            placeholder="Buscar por nombre o apellido"
-                            class="block w-full mt-1 px-3 py-1 {{ $errors->has('buscarCliente') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                            type="text" name="buscarCliente" wire:keydown="clearError('buscarCliente')" />
-                        @error('buscarCliente')
-                            <span class="text-sm text-red-600 dark:text-red-400">
-                                {{ $message }}
-                            </span>
-                        @enderror
-                    </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-                    <!-- Cliente -->
-                    <div>
-                        <x-input-label for="cliente_id" :value="__('Cliente')" />
+            {{-- ── Datos del cliente ───────────────────────────── --}}
+            <x-ui.section title="Datos del cliente">
+                <div class="space-y-4">
+                    <x-ui.form-field label="Buscar cliente" for="buscarCliente">
+                        <div class="search-wrap">
+                            <x-heroicon-o-magnifying-glass />
+                            <input wire:model.live.debounce.400ms="buscarCliente" id="buscarCliente"
+                                type="text" placeholder="Nombre o apellido…"
+                                class="form-input-base py-2 pl-9 pr-3" />
+                        </div>
+                    </x-ui.form-field>
+
+                    <x-ui.form-field label="Cliente" for="cliente_id" required :error="$errors->first('clienteId')">
                         <select wire:model="clienteId" id="cliente_id"
-                            class="block w-full mt-1 px-3 py-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-teal-400 dark:focus:border-teal-600 focus:outline-none focus:shadow-outline-teal rounded-md shadow-sm form-select {{ $errors->has('clienteId') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                            name="clienteId" autofocus wire:keydown="clearError('clienteId')">
-                            <option value="">Seleccione un cliente</option>
+                            class="form-select-base py-2 px-3 {{ $errors->has('clienteId') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:change="clearError('clienteId')">
+                            <option value="">Seleccione un cliente…</option>
                             @foreach ($clientes as $cliente)
-                                <option value="{{ $cliente->id }}">{{ $cliente->nombres }}
-                                    {{ $cliente->apellidos }}
+                                <option value="{{ $cliente->id }}">
+                                    {{ $cliente->nombres }} {{ $cliente->apellidos }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('clienteId')
-                            <span class="text-sm text-red-600 dark:text-red-400">
-                                {{ $message }}
-                            </span>
-                        @enderror
-                    </div>
+                    </x-ui.form-field>
                 </div>
-            </div>
+            </x-ui.section>
 
-            <!-- Tarjeta de Datos del Tipo de Tramite -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md py-4 px-6 border-2 dark:border-gray-700">
-                <h3 class="text-xl font-semibold text-teal-600 dark:text-teal-400 mb-4 text-center">Datos del
-                    Tipo de Trámite</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {{-- Buscar tipo de tramite --}}
-                    <div>
-                        <x-input-label for="buscarTipoTramite" :value="__('Buscar Tipo')" />
-                        <x-text-input wire:model.live.debounce.500ms="buscarTipoTramite" id="buscarTipoTramite"
-                            placeholder="Buscar por nombre"
-                            class="block w-full mt-1 px-3 py-1 {{ $errors->has('buscarTipoTramite') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                            type="text" name="buscarTipoTramite" wire:keydown="clearError('buscarTipoTramite')" />
-                        @error('buscarTipoTramite')
-                            <span class="text-sm text-red-600 dark:text-red-400">
-                                {{ $message }}
-                            </span>
-                        @enderror
-                    </div>
+            {{-- ── Datos del tipo de trámite ───────────────────── --}}
+            <x-ui.section title="Tipo de trámite">
+                <div class="space-y-4">
+                    <x-ui.form-field label="Buscar tipo" for="buscarTipoTramite">
+                        <div class="search-wrap">
+                            <x-heroicon-o-magnifying-glass />
+                            <input wire:model.live.debounce.400ms="buscarTipoTramite" id="buscarTipoTramite"
+                                type="text" placeholder="Nombre del tipo…"
+                                class="form-input-base py-2 pl-9 pr-3" />
+                        </div>
+                    </x-ui.form-field>
 
-                    <!-- Tipo de Trámite -->
-                    <div>
-                        <x-input-label for="tipo_tramite_id" :value="__('Tipo de Trámite')" />
+                    <x-ui.form-field label="Tipo de trámite" for="tipo_tramite_id" required :error="$errors->first('tipoTramiteId')">
                         <select wire:model="tipoTramiteId" id="tipo_tramite_id"
-                            class="block w-full mt-1 px-3 py-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-teal-400 dark:focus:border-teal-600 focus:outline-none focus:shadow-outline-teal rounded-md shadow-sm form-select {{ $errors->has('tipoTramiteId') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                            name="tipoTramiteId" wire:keydown="clearError('tipoTramiteId')">
-                            <option value="">Seleccione un tipo de trámite</option>
+                            class="form-select-base py-2 px-3 {{ $errors->has('tipoTramiteId') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                            wire:change="clearError('tipoTramiteId')">
+                            <option value="">Seleccione un tipo…</option>
                             @foreach ($tiposTramites as $tipoTramite)
                                 <option value="{{ $tipoTramite->id }}">{{ $tipoTramite->nombre }}</option>
                             @endforeach
                         </select>
-                        @error('tipoTramiteId')
-                            <span class="text-sm text-red-600 dark:text-red-400">
-                                {{ $message }}
-                            </span>
-                        @enderror
-                    </div>
+                    </x-ui.form-field>
                 </div>
-            </div>
+            </x-ui.section>
         </div>
 
-        <!-- Tarjeta de Datos del Trámite -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md py-4 px-6 mb-4 border-2 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-teal-600 dark:text-teal-400 mb-4 text-center">Datos del Trámite</h3>
+        {{-- ── Datos del trámite ────────────────────────────────── --}}
+        <x-ui.section title="Datos del trámite">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Fecha -->
-                <div>
-                    <x-input-label for="fecha" :value="__('Fecha del Trámite')" />
-                    <x-text-input wire:model="fecha" id="fecha"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('fecha') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="date" name="fecha" wire:keydown="clearError('fecha')" />
-                    @error('fecha')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
 
-                <!-- Precio -->
-                <div>
-                    <x-input-label for="precio" :value="__('Precio del Servicio')" />
-                    <x-text-input wire:model="precio" id="precio"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('precio') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="number" name="precio" wire:keydown="clearError('precio')" />
-                    @error('precio')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
+                <x-ui.form-field label="Fecha del trámite" for="fecha" required :error="$errors->first('fecha')">
+                    <input wire:model="fecha" id="fecha" type="date"
+                        class="form-input-base py-2 px-3 {{ $errors->has('fecha') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                        wire:keydown="clearError('fecha')" />
+                </x-ui.form-field>
 
-                <!-- Gastos -->
-                <div>
-                    <x-input-label for="gastos" :value="__('Gastos')" />
-                    <x-text-input wire:model="gastos" id="gastos"
-                        class="block w-full mt-1 px-3 py-1 {{ $errors->has('gastos') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        type="number" name="gastos" wire:keydown="clearError('gastos')" />
-                    @error('gastos')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
+                <x-ui.form-field label="Precio del servicio" for="precio" required helper="En quetzales (Q)"
+                    :error="$errors->first('precio')">
+                    <input wire:model="precio" id="precio" type="number" step="0.01" min="0"
+                        class="form-input-base py-2 px-3 num {{ $errors->has('precio') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                        wire:keydown="clearError('precio')" />
+                </x-ui.form-field>
 
-                <!-- Observaciones -->
-                <div>
-                    <x-input-label for="observaciones" :value="__('Observaciones')" />
-                    <textarea wire:model="observaciones" id="observaciones"
-                        class="block w-full mt-1 px-3 py-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-teal-400 dark:focus:border-teal-600 focus:outline-none focus:shadow-outline-teal rounded-md shadow-sm form-textarea {{ $errors->has('observaciones') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                        name="observaciones" wire:keydown="clearError('observaciones')"></textarea>
-                    @error('observaciones')
-                        <span class="text-sm text-red-600 dark:text-red-400">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
+                <x-ui.form-field label="Gastos" for="gastos" helper="En quetzales (Q)" :error="$errors->first('gastos')">
+                    <input wire:model="gastos" id="gastos" type="number" step="0.01" min="0"
+                        class="form-input-base py-2 px-3 num {{ $errors->has('gastos') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                        wire:keydown="clearError('gastos')" />
+                </x-ui.form-field>
+
+                <x-ui.form-field label="Observaciones" for="observaciones" :error="$errors->first('observaciones')">
+                    <textarea wire:model="observaciones" id="observaciones" rows="3"
+                        class="form-input-base py-2 px-3 {{ $errors->has('observaciones') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                        wire:keydown="clearError('observaciones')"></textarea>
+                </x-ui.form-field>
+
             </div>
-        </div>
+        </x-ui.section>
 
-        <!-- Botones -->
-        <div
-            class="flex flex-col items-center text-center justify-center p-6 -mx-6 -mb-4 space-y-4 sm:space-y-0 sm:space-x-6 sm:flex-row">
-            <a type="button" href="{{ route('tramites.index') }}"
-                class="w-full px-5 py-3 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-gray-400 sm:px-8 sm:py-3 sm:w-auto active:bg-transparent hover:border-rose-500 focus:border-rose-500 active:text-gray-500 focus:outline-none">
+        {{-- ── Botones ─────────────────────────────────────────── --}}
+        <div class="flex justify-end gap-3">
+            <a href="{{ route('tramites.index') }}" wire:navigate class="btn-secondary">
                 Cancelar
             </a>
-            <button type="submit"
-                class="w-full px-5 py-3 text-sm font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg sm:w-auto sm:px-8 sm:py-3 focus:outline-none bg-teal-600 active:bg-teal-600 hover:bg-teal-700">
-                Guardar
-            </button>
+            <flux:button type="submit" variant="primary" wire:loading.attr="disabled">
+                <x-heroicon-o-check class="w-4 h-4" />
+                <span wire:loading.remove wire:target="guardar">Guardar trámite</span>
+                <span wire:loading wire:target="guardar">Guardando…</span>
+            </flux:button>
         </div>
+
     </form>
 </div>

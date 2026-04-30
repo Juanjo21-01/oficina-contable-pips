@@ -5,6 +5,7 @@ use Livewire\WithoutUrlPagination;
 use Livewire\WithPagination;
 use Livewire\Component;
 use App\Models\Cliente;
+use App\Models\TipoCliente;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,7 @@ class Tabla extends Component
     // Variables
     public $clienteId, $password, $nombres, $apellidos;
     public $abrirModal = false;
-    public $search = '', $estado = '';
+    public $search = '', $estado = '', $tipoClienteId = '';
     public $perPage = 5;
 
     // Eventos
@@ -26,10 +27,8 @@ class Tabla extends Component
     {
         // Solo los administradores pueden eliminar clientes
         if (Auth::user()->role->nombre !== 'Administrador') {
-            return toastr()->addError('¡No tienes permiso para eliminar clientes!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: '¡No tienes permiso para eliminar clientes!');
+            return;
         }
 
         $this->password = '';
@@ -74,19 +73,13 @@ class Tabla extends Component
 
             // Verificar si el cliente tiene agencia virtual
             if ($cliente->agenciaVirtual) {
-                toastr()->addWarning('¡El cliente tiene una agencia virtual asociada!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'warning', message: '¡El cliente tiene una agencia virtual asociada!');
                 return;
             }
 
             // Verificar si el cliente tiene tramites
             if ($cliente->tramites->count() > 0) {
-                toastr()->addWarning('¡El cliente tiene trámites asociados!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'warning', message: '¡El cliente tiene trámites asociados!');
                 return;
             }
 
@@ -97,17 +90,10 @@ class Tabla extends Component
             $this->abrirModal = false;
             $this->dispatch('clienteEliminado');
 
-            // Mostrar mensaje
-            toastr()->addSuccess('Cliente eliminado.', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'success', message: 'Cliente eliminado correctamente.');
        } catch (\Exception $e) {
-            $this->addError('password', 'Error al eliminar el cliente.'.$e->getMessage());
-            toastr()->addError('¡Error al eliminar el cliente!', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->addError('password', 'Error al eliminar el cliente.' . $e->getMessage());
+            $this->dispatch('toast', type: 'error', message: '¡Error al eliminar el cliente!');
        }
     }
 
@@ -127,11 +113,7 @@ class Tabla extends Component
         $cliente->estado = !$cliente->estado;
         $cliente->save();
 
-        // Mostrar mensaje
-        toastr()->addSuccess('Estado actualizado.', [
-            'positionClass' => 'toast-bottom-right',
-            'closeButton' => true,
-        ]);
+        $this->dispatch('toast', type: 'success', message: 'Estado actualizado.');
     }
 
     // Resetear paginación al buscar
@@ -145,29 +127,37 @@ class Tabla extends Component
         $this->resetPage();
     }
 
+    public function updatingTipoClienteId()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
-        $query = Cliente::query();
-        // Filtrar por nombre o apellido, correo, nit o dpi
+        $query = Cliente::query()->with('tipoCliente');
+
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('nombres', 'like', '%' . $this->search . '%')
-                ->orWhere('apellidos', 'like', '%' . $this->search . '%');
+                  ->orWhere('apellidos', 'like', '%' . $this->search . '%');
             });
         }
 
-        // Filtrar por estado
         if ($this->estado !== '') {
             $query->where('estado', $this->estado);
         }
 
-        // Ordenar de manera descendente
+        if ($this->tipoClienteId !== '') {
+            $query->where('tipo_cliente_id', $this->tipoClienteId);
+        }
+
         $query->orderBy('created_at', 'desc');
 
-        // Obtener los clientes paginados
         $clientes = $query->paginate($this->perPage);
 
         return view('livewire.clientes.tabla', [
-            'clientes' => $clientes]);
+            'clientes'     => $clientes,
+            'tipoClientes' => TipoCliente::all(),
+        ]);
     }
 }

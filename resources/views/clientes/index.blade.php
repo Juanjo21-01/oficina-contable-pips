@@ -1,11 +1,15 @@
 <x-app-layout>
-    <h1 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-        Clientes
-    </h1>
 
-    <!-- Tabla -->
+    <x-ui.page-header title="Clientes" description="Gestión de clientes de la oficina contable.">
+        <x-slot name="actions">
+            <flux:button :href="route('clientes.crear')" variant="primary" icon="plus" wire:navigate>
+                Nuevo cliente
+            </flux:button>
+        </x-slot>
+    </x-ui.page-header>
+
     <livewire:clientes.tabla />
 
-    <!-- Modal Actualizar -->
     <livewire:clientes.modal />
+
 </x-app-layout>

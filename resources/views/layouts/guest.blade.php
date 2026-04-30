@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html :class="{ 'dark': darkMode }" x-data="data()" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8">
@@ -11,80 +11,18 @@
     <!-- Icon -->
     <link rel="icon" href="{{ asset('img/icono.png') }}" type="image/png">
 
-    <!-- Fonts -->
+    <!-- Pre-paint dark mode: aplica clase antes de que el navegador pinte para evitar FOUC -->
+    @include('layouts.partials.theme-init')
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script>
-        function data() {
-            function getThemeFromLocalStorage() {
-                if (window.localStorage.getItem("dark")) {
-                    return JSON.parse(window.localStorage.getItem("dark"));
-                }
-                return (
-                    !!window.matchMedia &&
-                    window.matchMedia("(prefers-color-scheme: dark)").matches
-                );
-            }
-
-            function setThemeToLocalStorage(value) {
-                window.localStorage.setItem("dark", value);
-            }
-
-            return {
-                darkMode: getThemeFromLocalStorage(),
-                toggleTheme() {
-                    this.darkMode = !this.darkMode;
-                    setThemeToLocalStorage(this.darkMode);
-                },
-                isSideMenuOpen: false,
-                toggleSideMenu() {
-                    this.isSideMenuOpen = !this.isSideMenuOpen;
-                },
-                closeSideMenu() {
-                    this.isSideMenuOpen = false;
-                },
-                isProfileMenuOpen: false,
-                toggleProfileMenu() {
-                    this.isProfileMenuOpen = !this.isProfileMenuOpen;
-                },
-                closeProfileMenu() {
-                    this.isProfileMenuOpen = false;
-                },
-                isPagesMenuOpen: false,
-                togglePagesMenu() {
-                    this.isPagesMenuOpen = !this.isPagesMenuOpen;
-                },
-                isPagesMenuUsuariosOpen: false,
-                togglePagesMenuUsuarios() {
-                    this.isPagesMenuUsuariosOpen = !this.isPagesMenuUsuariosOpen;
-                },
-                isPagesMenuTramitesOpen: false,
-                togglePagesMenuTramites() {
-                    this.isPagesMenuTramitesOpen = !this.isPagesMenuTramitesOpen;
-                },
-                isPagesMenuClientesOpen: false,
-                togglePagesMenuClientes() {
-                    this.isPagesMenuClientesOpen = !this.isPagesMenuClientesOpen;
-                },
-                isModalOpen: false,
-                trapCleanup: null,
-                openModal() {
-                    this.isModalOpen = true;
-                    this.trapCleanup = focusTrap(document.querySelector("#modal"));
-                },
-                closeModal() {
-                    this.isModalOpen = false;
-                    this.trapCleanup();
-                },
-            };
-        }
-    </script>
+    @fluxAppearance
+    @include('layouts.partials.theme-controller')
 </head>
 
 <body>
-    <div class="flex items-center min-h-screen py-4 px-6 bg-gray-50 dark:bg-gray-900">
-        <div class="flex-1 h-full max-w-4xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800">
+    <div class="flex items-center min-h-screen py-4 px-6 bg-slate-50 dark:bg-slate-950">
+        <div class="flex-1 h-full max-w-4xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-slate-900">
             <div class="flex flex-col overflow-y-auto md:flex-row">
 
                 <!-- Imagen del lado izquierdo -->
@@ -112,6 +50,7 @@
             @include('layouts.footer')
         </div>
     </div>
+    @fluxScripts
 </body>
 
 </html>

@@ -1,8 +1,7 @@
 <x-app-layout>
-    <h1 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-        Bitácora
-    </h1>
 
-    <!-- Tabla -->
+    <x-ui.page-header title="Bitácora" description="Registro de eventos y actividad del sistema." />
+
     <livewire:bitacora.tabla />
+
 </x-app-layout>

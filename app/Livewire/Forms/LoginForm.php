@@ -33,28 +33,15 @@ class LoginForm extends Form
         if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
-            toastr()->error('Credenciales incorrectas', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-                'timeOut' => 5000,
-            ]);
-            
             throw ValidationException::withMessages([
                 'form.email' => trans('auth.failed'),
             ]);
         }
 
-         // Verificar el estado del usuario después de la autenticación
         $user = Auth::user();
 
         if ($user->estado == 0) {
             Auth::logout();
-
-            toastr()->addError('Tu cuenta está deshabilitada', [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-                'timeOut' => 8000,
-            ]);
 
             throw ValidationException::withMessages([
                 'form.email' => 'Tu cuenta está deshabilitada',

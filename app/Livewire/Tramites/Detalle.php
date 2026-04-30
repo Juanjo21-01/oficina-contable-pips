@@ -29,19 +29,11 @@ class Detalle extends Component
     // Cambiar estado
     public function cambiarEstado($tramiteId)
     {
-        // Buscar tramite
         $tramite = Tramite::find($tramiteId);
-
-
-        // Cambiar estado
         $tramite->estado = !$tramite->estado;
         $tramite->save();
 
-        // Mostrar mensaje
-        toastr()->addSuccess('¡Estado actualizado!', [
-            'positionClass' => 'toast-bottom-right',
-            'closeButton' => true,
-        ]);
+        $this->dispatch('toast', type: 'success', message: '¡Estado actualizado!');
     }
 
     public function render()

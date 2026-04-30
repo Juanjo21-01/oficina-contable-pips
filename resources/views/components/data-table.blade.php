@@ -1,72 +1,73 @@
 @props([
-    'columns'      => [],        // array of ['label' => 'Nombre', 'width' => 'w-3/12', 'align' => 'center']
+    'columns'      => [],
     'emptyMessage' => 'No hay registros que mostrar.',
-    'emptyAction'  => null,      // ['label' => '+ Agregar', 'route' => '#'] or null
     'skeletonRows' => 5,
-    'colspan'      => null,      // auto-calculated from columns if null
+    'colspan'      => null,
 ])
 
 @php
     $cols = $colspan ?? count($columns);
 @endphp
 
-<div class="table-container mb-4">
-    <div class="w-full overflow-x-auto">
-        <table class="w-full min-w-full table-auto whitespace-nowrap">
+<div {{ $attributes }}>
 
-            {{-- Head --}}
-            <thead>
-                <tr>
-                    @foreach ($columns as $col)
-                        <th class="table-header {{ $col['width'] ?? '' }}">
-                            {{ $col['label'] }}
-                        </th>
-                    @endforeach
-                    @if (isset($headExtra))
-                        {{ $headExtra }}
-                    @endif
-                </tr>
-            </thead>
+    {{-- Toolbar: search, filters, bulk actions --}}
+    @isset($toolbar)
+        <div class="toolbar">
+            {{ $toolbar }}
+        </div>
+    @endisset
 
-            {{-- Body --}}
-            <tbody class="bg-white divide-y divide-gray-100 dark:divide-gray-700 dark:bg-gray-800">
+    <div class="table-container mb-4">
+        <div class="w-full overflow-x-auto">
+            <table class="w-full min-w-full table-auto whitespace-nowrap">
 
-                {{-- Loading skeleton (shown via wire:loading) --}}
-                <tr wire:loading.delay class="hidden">
-                    <td colspan="{{ $cols }}">
-                        <div class="divide-y divide-gray-100 dark:divide-gray-700">
-                            @for ($i = 0; $i < $skeletonRows; $i++)
-                                <div class="flex items-center gap-4 px-4 py-3">
-                                    <div class="skeleton h-4 w-8 rounded"></div>
-                                    <div class="skeleton h-4 flex-1 rounded"></div>
-                                    <div class="skeleton h-4 w-20 rounded"></div>
-                                    <div class="skeleton h-4 w-16 rounded"></div>
-                                    <div class="skeleton h-6 w-16 rounded-full"></div>
-                                    <div class="skeleton h-4 w-20 rounded"></div>
-                                </div>
+                {{-- Head --}}
+                <thead>
+                    <tr>
+                        @foreach ($columns as $col)
+                            <th class="table-header {{ $col['width'] ?? '' }} {{ isset($col['align']) && $col['align'] === 'left' ? 'text-left' : '' }}">
+                                {{ $col['label'] }}
+                            </th>
+                        @endforeach
+                        @isset($headExtra)
+                            {{ $headExtra }}
+                        @endisset
+                    </tr>
+                </thead>
+
+                {{-- Skeleton: shows during loading (after 200ms delay) --}}
+                <tbody wire:loading.delay
+                       class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-700">
+                    @for ($i = 0; $i < $skeletonRows; $i++)
+                        <tr>
+                            @for ($j = 0; $j < $cols; $j++)
+                                <td class="table-cell">
+                                    <div class="skeleton h-4 rounded {{ $j === 0 ? 'w-8 mx-auto' : ($j === $cols - 1 ? 'w-20 mx-auto' : 'w-full max-w-[160px] mx-auto') }}"></div>
+                                </td>
                             @endfor
-                        </div>
-                    </td>
-                </tr>
+                        </tr>
+                    @endfor
+                </tbody>
 
-                {{-- Actual rows slot --}}
-                <tr wire:loading.remove class="hidden"></tr>
-                {{ $slot }}
+                {{-- Real rows: hidden during loading --}}
+                <tbody wire:loading.remove
+                       class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-700">
+                    {{ $slot }}
+                </tbody>
 
-            </tbody>
-        </table>
+            </table>
+        </div>
+
+        {{-- Pagination slot --}}
+        @isset($pagination)
+            {{ $pagination }}
+        @endisset
     </div>
 
-    {{-- Pagination slot --}}
-    @isset($pagination)
-        {{ $pagination }}
+    {{-- Empty state slot --}}
+    @isset($empty)
+        {{ $empty }}
     @endisset
-</div>
 
-{{-- Empty state (rendered outside table for better layout control) --}}
-@isset($empty)
-    {{ $empty }}
-@else
-    {{-- Default empty state shown when slot has no rows — blade can't detect this directly,
-         so tables should use @if($items->isEmpty()) to conditionally include this. --}}
-@endisset
+</div>

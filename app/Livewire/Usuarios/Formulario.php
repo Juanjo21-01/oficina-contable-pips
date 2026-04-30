@@ -28,10 +28,8 @@ class Formulario extends Component
     // Cargar Usuario
     public function cargarUsuario($usuarioId)
     {
-        // Buscar usuario
         $usuario = User::find($usuarioId);
 
-        // Asignar valores
         $this->usuarioId = $usuario->id;
         $this->nombres = $usuario->nombres;
         $this->apellidos = $usuario->apellidos;
@@ -43,7 +41,6 @@ class Formulario extends Component
     // Guardar
     public function guardar()
     {
-        // Validar
         $this->validate([
             'nombres' => 'required|string|max:50',
             'apellidos' => 'required|string|max:50',
@@ -51,13 +48,11 @@ class Formulario extends Component
             'password' => 'nullable|string|min:8|max:255',
             'roleId' => 'required|int|exists:roles,id'
         ]);
-        
-        try{
-            // Si se esta editando
+
+        try {
             if ($this->usuarioId) {
-                // Buscar usuario
                 $usuario = User::find($this->usuarioId);
-                
+
                 $usuario->nombres = $this->nombres;
                 $usuario->apellidos = $this->apellidos;
                 $usuario->email = $this->email;
@@ -68,25 +63,15 @@ class Formulario extends Component
                     $usuario->password = bcrypt($this->password);
                 }
 
-                // Guardar
                 $usuario->save();
 
-                // Emitir evento
                 $this->dispatch('usuarioGuardado');
-
-                // Mostrar mensaje
-                toastr()->addInfo('¡Usuario actualizado!', [
-                    'positionClass' => 'toast-bottom-right',
-                    'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'info', message: '¡Usuario actualizado!');
             } else {
-
-                // Validar contraseña
                 $this->validate([
                     'password' => 'required|string|min:8|max:255'
                 ]);
 
-                // Crear usuario
                 User::create([
                     'nombres' => $this->nombres,
                     'apellidos' => $this->apellidos,
@@ -95,26 +80,13 @@ class Formulario extends Component
                     'role_id' => $this->roleId
                 ]);
 
-                // Emitir evento
                 $this->dispatch('usuarioGuardado');
-
-                // Mostrar mensaje
-                toastr()->addSuccess('¡Usuario guardado!', [
-                    'positionClass' => 'toast-bottom-right',
-                    'closeButton' => true,
-                ]);
+                $this->dispatch('toast', type: 'success', message: '¡Usuario guardado!');
             }
-            // Cerrar modal
             $this->dispatch('cerrarModal');
-            }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             $this->errorMessage = 'Error al guardar el usuario: '.$e->getMessage();
-
-            // Mostrar mensaje
-            toastr()->addError($this->errorMessage, [
-                'positionClass' => 'toast-bottom-right',
-                'closeButton' => true,
-            ]);
+            $this->dispatch('toast', type: 'error', message: $this->errorMessage);
         }
     }
 

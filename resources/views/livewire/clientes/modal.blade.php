@@ -1,157 +1,111 @@
-<div
-    class="fixed inset-0 z-30 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center transition ease-out duration-150 {{ $show ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none' }}">
+<div>
     @if ($show)
-        <div class="w-full px-6 py-4 overflow-hidden bg-white rounded-t-lg dark:bg-gray-800 sm:rounded-lg sm:m-4 sm:max-w-xl transform transition ease-out duration-150 {{ $show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1/2' }}"
-            id="modal">
-            <!-- Header -->
-            <header class="flex justify-between px-6 py-3">
-                <p class="text-xl font-semibold text-amber-600 dark:text-amber-400">
-                    Editar Cliente No. {{ $clienteId }} </p>
-                <button
-                    class="inline-flex items-center justify-center w-6 h-6 text-gray-400 transition-colors duration-150 rounded dark:hover:text-gray-200 hover:text-gray-700  hover:border"
-                    wire:click="cerrarModal" aria-label="close">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </header>
+        <div class="modal-backdrop fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" x-data
+            x-on:keydown.escape.window="$wire.cerrarModal()">
+            <div
+                class="modal-panel w-full max-w-2xl bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
 
-            <hr class="border-gray-200 dark:border-gray-700">
+                {{-- Header --}}
+                <div
+                    class="flex items-start justify-between px-5 pt-5 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+                            Editar cliente
+                        </h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                            Cliente No. {{ $clienteId }}
+                        </p>
+                    </div>
+                    <button wire:click="cerrarModal"
+                        class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        aria-label="Cerrar">
+                        <x-heroicon-o-x-mark class="w-5 h-5" />
+                    </button>
+                </div>
 
-            <!-- Contenido -->
-            <div class="px-6 py-4">
-                <!-- Formulario -->
-                <form wire:submit.prevent="actualizar">
+                {{-- Body --}}
+                <form id="modal-form" wire:submit.prevent="actualizar" class="px-5 py-4">
+
                     @if ($errorMessage)
-                        <div class="bg-red-500 text-white p-2 rounded mb-4 text-sm">{{ $errorMessage }}</div>
+                        <div
+                            class="flex items-center gap-2 px-4 py-3 mb-4 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700 text-rose-700 dark:text-rose-300 text-sm">
+                            <x-heroicon-o-exclamation-circle class="w-4 h-4 shrink-0" />
+                            {{ $errorMessage }}
+                        </div>
                     @endif
 
-                    <!-- Agrupar los campos en una grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Nombres -->
-                        <div>
-                            <x-input-label for="nombres" :value="__('Nombres')" />
-                            <x-text-input wire:model="nombres" id="nombres"
-                                class="block w-full mt-1 px-3 py-1 {{ $errors->has('nombres') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                                type="text" name="nombres" autofocus wire:keydown="clearError('nombres')" />
-                            @error('nombres')
-                                <span class="text-sm text-red-600 dark:text-red-400">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
 
-                        <!-- DPI -->
-                        <div>
-                            <x-input-label for="dpi" :value="__('DPI')" />
-                            <x-text-input wire:model="dpi" id="dpi"
-                                class="block w-full mt-1 px-3 py-1 {{ $errors->has('dpi') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                                type="text" name="dpi" wire:keydown="clearError('dpi')" />
-                            @error('dpi')
-                                <span class="text-sm text-red-600 dark:text-red-400">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
+                        <x-ui.form-field label="Nombres" for="modal-nombres" required :error="$errors->first('nombres')">
+                            <input wire:model="nombres" id="modal-nombres" type="text"
+                                class="form-input-base py-2 px-3 {{ $errors->has('nombres') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:keydown="clearError('nombres')" autofocus />
+                        </x-ui.form-field>
 
-                        <!-- Apellidos -->
-                        <div>
-                            <x-input-label for="apellidos" :value="__('Apellidos')" />
-                            <x-text-input wire:model="apellidos" id="apellidos"
-                                class="block w-full mt-1 px-3 py-1 {{ $errors->has('apellidos') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                                type="text" name="apellidos" wire:keydown="clearError('apellidos')" />
-                            @error('apellidos')
-                                <span class="text-sm text-red-600 dark:text-red-400">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
+                        <x-ui.form-field label="Apellidos" for="modal-apellidos" required :error="$errors->first('apellidos')">
+                            <input wire:model="apellidos" id="modal-apellidos" type="text"
+                                class="form-input-base py-2 px-3 {{ $errors->has('apellidos') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:keydown="clearError('apellidos')" />
+                        </x-ui.form-field>
 
-                        <!-- NIT -->
-                        <div>
-                            <x-input-label for="nit" :value="__('NIT')" />
-                            <x-text-input wire:model="nit" id="nit"
-                                class="block w-full mt-1 px-3 py-1 {{ $errors->has('nit') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                                type="text" name="nit" wire:keydown="clearError('nit')" />
-                            @error('nit')
-                                <span class="text-sm text-red-600 dark:text-red-400">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
+                        <x-ui.form-field label="DPI" for="modal-dpi" required helper="13 dígitos" :error="$errors->first('dpi')">
+                            <input wire:model="dpi" id="modal-dpi" type="text" maxlength="13"
+                                class="form-input-base py-2 px-3 num {{ $errors->has('dpi') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:keydown="clearError('dpi')" />
+                        </x-ui.form-field>
 
-                        <!-- Dirección -->
-                        <di>
-                            <x-input-label for="direccion" :value="__('Dirección')" />
-                            <x-text-input wire:model="direccion" id="direccion"
-                                class="block w-full mt-1 px-3 py-1 {{ $errors->has('direccion') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                                type="text" name="direccion" wire:keydown="clearError('direccion')" />
-                            @error('direccion')
-                                <span class="text-sm text-red-600 dark:text-red-400">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </di>
+                        <x-ui.form-field label="NIT" for="modal-nit" required :error="$errors->first('nit')">
+                            <input wire:model="nit" id="modal-nit" type="text" maxlength="13"
+                                class="form-input-base py-2 px-3 num {{ $errors->has('nit') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:keydown="clearError('nit')" />
+                        </x-ui.form-field>
 
-                        <!-- Teléfono -->
-                        <div>
-                            <x-input-label for="telefono" :value="__('Teléfono')" />
-                            <x-text-input wire:model="telefono" id="telefono"
-                                class="block w-full mt-1 px-3 py-1 {{ $errors->has('telefono') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                                type="text" name="telefono" wire:keydown="clearError('telefono')" />
-                            @error('telefono')
-                                <span class="text-sm text-red-600 dark:text-red-400">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
+                        <x-ui.form-field label="Teléfono" for="modal-telefono" required :error="$errors->first('telefono')">
+                            <input wire:model="telefono" id="modal-telefono" type="text" maxlength="8"
+                                class="form-input-base py-2 px-3 num {{ $errors->has('telefono') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:keydown="clearError('telefono')" />
+                        </x-ui.form-field>
 
-                        <!-- Tipo de Cliente -->
-                        <div>
-                            <x-input-label for="tipo_cliente_id" :value="__('Tipo de Cliente')" />
-                            <select wire:model="tipoClienteId" id="tipo_cliente_id"
-                                class="block w-full mt-1 px-3 py-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-teal-400 dark:focus:border-teal-600 focus:outline-none focus:shadow-outline-teal rounded-md shadow-sm form-select {{ $errors->has('tipoClienteId') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                                name="tipoClienteId" wire:click="clearError('tipoClienteId')">
-                                <option value="" selected disabled>Seleccione un tipo de cliente</option>
-                                @foreach ($tipoClientes as $tipoCliente)
-                                    <option value="{{ $tipoCliente->id }}">{{ $tipoCliente->nombre }}</option>
+                        <x-ui.form-field label="Correo electrónico" for="modal-email" helper="Opcional"
+                            :error="$errors->first('email')">
+                            <input wire:model="email" id="modal-email" type="email"
+                                class="form-input-base py-2 px-3 {{ $errors->has('email') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:keydown="clearError('email')" />
+                        </x-ui.form-field>
+
+                        <x-ui.form-field label="Tipo de cliente" for="modal-tipo" required :error="$errors->first('tipoClienteId')">
+                            <select wire:model="tipoClienteId" id="modal-tipo"
+                                class="form-select-base py-2 px-3 {{ $errors->has('tipoClienteId') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:change="clearError('tipoClienteId')">
+                                <option value="">Selecciona un tipo…</option>
+                                @foreach ($tipoClientes as $tipo)
+                                    <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
                                 @endforeach
                             </select>
-                            @error('tipoClienteId')
-                                <span class="text-sm text-red-600 dark:text-red-400">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
+                        </x-ui.form-field>
 
-                        <!-- Email -->
-                        <div>
-                            <x-input-label for="email" :value="__('Correo Electrónico')" />
-                            <x-text-input wire:model="email" id="email"
-                                class="block w-full mt-1 px-3 py-1 {{ $errors->has('email') ? 'border-red-600 focus:border-red-400 dark:border-red-400' : '' }}"
-                                type="email" name="email" wire:keydown="clearError('email')" />
-                            @error('email')
-                                <span class="text-sm text-red-600 dark:text-red-400">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
+                        <x-ui.form-field label="Dirección" for="modal-direccion" required :error="$errors->first('direccion')">
+                            <input wire:model="direccion" id="modal-direccion" type="text"
+                                class="form-input-base py-2 px-3 {{ $errors->has('direccion') ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500' : '' }}"
+                                wire:keydown="clearError('direccion')" />
+                        </x-ui.form-field>
+
                     </div>
 
-                    <!-- Botones -->
-                    <div
-                        class="flex flex-col items-center text-center justify-center p-6 -mx-6 -mb-4 space-y-4 sm:space-y-0 sm:space-x-6 sm:flex-row">
-                        <button type="button" wire:click="cerrarModal"
-                            class="w-full px-5 py-3 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-gray-400 sm:px-8 sm:py-3 sm:w-auto active:bg-transparent hover:border-rose-500 focus:border-rose-500 active:text-gray-500 focus:outline-none">
-                            Cancelar
-                        </button>
-                        <button type="submit"
-                            class="w-full px-5 py-3 text-sm font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg sm:w-auto sm:px-8 sm:py-3 focus:outline-none bg-amber-600 active:bg-amber-600 hover:bg-amber-700">
-                            Actualizar
-                        </button>
-                    </div>
                 </form>
+
+                {{-- Footer --}}
+                <div class="flex justify-end gap-3 px-5 pb-5">
+                    <button wire:click="cerrarModal" type="button" class="btn-secondary">
+                        Cancelar
+                    </button>
+                    <flux:button type="submit" form="modal-form" variant="primary" wire:loading.attr="disabled">
+                        <x-heroicon-o-check class="w-4 h-4" />
+                        <span wire:loading.remove wire:target="actualizar">Actualizar</span>
+                        <span wire:loading wire:target="actualizar">Guardando…</span>
+                    </flux:button>
+                </div>
+
             </div>
         </div>
     @endif
